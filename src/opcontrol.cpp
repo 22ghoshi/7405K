@@ -15,17 +15,37 @@
  */
 void opcontrol() {
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_mtr(1);
-	pros::Motor right_mtr(2);
+	pros::Motor backleft_mtr(1);
+	pros::Motor backright_mtr(2);
+	pros::Motor frontleft_mtr(3);
+	pros::Motor frontright_mtr(4);
 	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
+		
 		int left = master.get_analog(ANALOG_LEFT_Y);
 		int right = master.get_analog(ANALOG_RIGHT_Y);
+		if (left > 15 || left < -15)
+		{
+			frontleft_mtr = left;
+			backleft_mtr = left;
+		}
+		else
+		{
+			frontleft_mtr = 0;
+			backleft_mtr = 0;
+		}
+		
+		if (right > 15 || right < -15)
+		{
+			backright_mtr = right;
+			frontright_mtr = right;
+		}
+		else
+		{
+			backright_mtr = 0;
+			frontright_mtr = 0;
+		}
+		
 
-		left_mtr = left;
-		right_mtr = right;
-		pros::delay(20);
+
 	}
 }
