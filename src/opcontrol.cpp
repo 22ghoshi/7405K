@@ -15,10 +15,11 @@
  */
 void opcontrol() {
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor backleft_mtr(1);
-	pros::Motor backright_mtr(2);
-	pros::Motor frontleft_mtr(3);
-	pros::Motor frontright_mtr(4);
+	pros::Motor backleft_mtr(3);
+	pros::Motor backright_mtr(4);
+	pros::Motor frontleft_mtr(1);
+	pros::Motor frontright_mtr(2);
+	pros::Motor lift(5);
 	while (true) {
 		
 		int left = master.get_analog(ANALOG_LEFT_Y);
@@ -43,6 +44,14 @@ void opcontrol() {
 		{
 			backright_mtr = 0;
 			frontright_mtr = 0;
+		}
+		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+		{
+			lift = -30;
+		}
+		else
+		{
+			lift = 0;
 		}
 		
 
