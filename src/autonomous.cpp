@@ -11,6 +11,15 @@
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
+
+//functions from opcontrol
+double pid(double error);
+void move();
+void rightTurn(int turn);
+void leftTurn(int turn);
+void anglerShift(int set) //0 for intaking, 1 for stacking
+
+
 void autonomous() 
 {
 

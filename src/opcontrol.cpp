@@ -25,25 +25,60 @@ pros::Motor left_intake(10);
 pros::Motor right_intake(11);
 
 //AUTON FUNCTIONS
-void move()
+double prevErr = 0;
+double pid(double err) //to use this, set motor speed to pid(destination - motor.get_position)
 {
 	//PID stuff
+	double integral, deriv, pid;
+	double ce, ci, cd; //coefficients need to be determined through testing actual bot
+	//error pushes it, integral needs to be small (gives it last push), deriv slows it as it reaches target
+	//360 encoder units = 1 rotation of motor
+
+	integral += err;
+	deriv = err - prevErr;
+	pid = (ce * err) + (ci * integral) + (cd * deriv);
+	prevErr = err;
+
+	return pid;
 }
+
+void move()
+{
+
+}
+
 void rightTurn(int turn)
 {
-	frontright_mtr.move_absolute(-turn, 100);
-	backright_mtr.move_absolute(-turn, 100);
-	frontleft_mtr.move_absolute(turn, 100);
-	backright_mtr.move_absolute(turn, 100);
+	frontright_mtr.move_relative(-turn, 100);
+	backright_mtr.move_relative(-turn, 100);
+	frontleft_mtr.move_relative(turn, 100);
+	backright_mtr.move_relative(turn, 100);
 }
 
 void leftTurn(int turn)
 {
-	frontright_mtr.move_absolute(turn, 100);
-	backright_mtr.move_absolute(turn, 100);
-	frontleft_mtr.move_absolute(-turn, 100);
-	backright_mtr.move_absolute(-turn, 100);
+	frontright_mtr.move_relative(turn, 100);
+	backright_mtr.move_relative(turn, 100);
+	frontleft_mtr.move_relative(-turn, 100);
+	backright_mtr.move_relative(-turn, 100);
 }
+
+void anglerShift(int set) //0 for intaking, 1 for stacking
+{
+	if(set == 0)
+	{
+		//angler.move_absolute((short distance), 100)
+	}
+	else if(set == 1)
+	{
+		//angler.move_absolute((long distance), 100)
+	}
+}
+
+void 
+	
+
+
 
 
 //DRIVER CONTROL
@@ -94,10 +129,11 @@ void opcontrol() {
 			lift.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD); //doesn't work?
 		}
 
-		/*need to set two positions of angler
+		//need to set two positions of angler
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 		{
-			angler = 70;
+			//angler = 70;
+			motor_move_relative(angler, 10, 10);
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B))
 		{
@@ -106,7 +142,7 @@ void opcontrol() {
 		else
 		{
 			angler = 0;
-		}*/
+		}
 		
 
 		
