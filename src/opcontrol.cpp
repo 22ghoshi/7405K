@@ -15,10 +15,18 @@
  */
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
+
 pros::Motor backleft_mtr(4);
 pros::Motor backright_mtr(6);
 pros::Motor frontleft_mtr(7);
 pros::Motor frontright_mtr(5);
+pros::Motor drive[4]
+{
+	backleft_mtr,
+	backright_mtr,
+	frontleft_mtr,
+	frontright_mtr
+};
 pros::Motor angler(8);
 pros::Motor lift(9);
 pros::Motor left_intake(10);
@@ -26,7 +34,7 @@ pros::Motor right_intake(11);
 
 //AUTON FUNCTIONS
 double prevErr = 0;
-double pid(double err) //to use this, set motor speed to pid(destination - motor.get_position)
+double pid(double err) //don't use this function directly just use move()
 {
 	//PID stuff
 	double integral, deriv, pid;
@@ -42,9 +50,19 @@ double pid(double err) //to use this, set motor speed to pid(destination - motor
 	return pid;
 }
 
-void move()
+void move(int destination)
 {
-
+	for(int i = 0; i < 4; i++)
+	{
+		drive[i].tare_position();
+	}
+	while(frontright_mtr.get_position() < destination && frontleft_mtr.get_position() < destination && backright_mtr.get_position() < destination && backleft_mtr.get_position() < destination)
+	{
+		for(int i = 0; i < 4; i++)
+		{
+			drive[i] = pid(destination - drive[i].get_position());
+		}
+	}
 }
 
 void rightTurn(int turn)
@@ -74,8 +92,6 @@ void anglerShift(int set) //0 for intaking, 1 for stacking
 		//angler.move_absolute((long distance), 100)
 	}
 }
-
-void 
 	
 
 
@@ -132,8 +148,8 @@ void opcontrol() {
 		//need to set two positions of angler
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 		{
-			//angler = 70;
-			motor_move_relative(angler, 10, 10);
+			angler = 70;
+			//angler.move_relative(70, 10)
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B))
 		{
@@ -143,6 +159,19 @@ void opcontrol() {
 		{
 			angler = 0;
 		}
+
+
+		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
+		{
+			left_intake = 70;
+			right_intake = 70;
+		}
+		else
+		{
+			left_intake = 0;
+			right_intake = 0;
+		}
+		
 		
 
 		
