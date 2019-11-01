@@ -19,10 +19,38 @@ void rightTurn(int turn);
 void leftTurn(int turn);
 void anglerShift(int set); //0 for intaking, 1 for stacking
 
+void topRed(int x)
+{
+
+}
+
+void botRed(int x)
+{
+
+}
+
+void topBlue(int x)
+{
+
+}
+
+void botBlue(int x)
+{
+
+}
+
+void skills(int x)
+{
+    
+}
 
 void autonomous() 
 {
 
-    
-
+    /*minimum  autons - 
+    maximum scoring (skills)
+    top red / bot red hoarding cubes
+    top blue / bot blue hoarding cubes
+    maybe towers autons for all four
+    */
 }
