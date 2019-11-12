@@ -221,16 +221,18 @@ void opcontrol() {
 		}
 
 		//ANGLER
-		//need to set two positions of angler
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
 		{
-			angler = 50;
-			//angler.move_absolute(600, 100);
+			angler = 20;
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 		{
-			angler = -70;
-			//angler.move_absolute(0, -100);
+			angler = -25;
+		}
+		else
+		{
+			angler = 0;
+			angler.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 		}
 
 		//INTAKE
