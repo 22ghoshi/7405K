@@ -1,8 +1,8 @@
 #include "main.h"
 #include<bits/stdc++.h> 
+#include<string>
 
-using std::vector;
-using std::string;
+using namespace std;
 
 typedef void (*autons) (int x);
 
@@ -54,12 +54,13 @@ void on_right_button()
 {
 	if (autonselect = totalautons)
 	{
-		autonselect = 1;
+		autonselect = 0;
 	}
-	else
-	{
+	
+	
 		autonselect++;
-	}
+		pros::lcd::set_text(7, to_string(totalautons));
+	
 	
 	pros::lcd::set_text(2, autonNames[autonselect - 1]);
 }

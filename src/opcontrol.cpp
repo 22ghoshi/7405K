@@ -1,4 +1,8 @@
 #include "main.h"
+#include<bits/stdc++.h> 
+#include<string>
+
+using namespace std;
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -56,32 +60,50 @@ void move(int destination)
 	{
 		x.tare_position();
 	}
-	while(frontright_mtr.get_position() < destination && frontleft_mtr.get_position() < destination && backright_mtr.get_position() < destination && backleft_mtr.get_position() < destination)
+
+	if(destination > 0)
 	{
-		for(pros::Motor x : drive)
+		while(frontright_mtr.get_position() < destination && frontleft_mtr.get_position() < destination && backright_mtr.get_position() < destination && backleft_mtr.get_position() < destination)
 		{
-			error = destination - x.get_position();
-			x = pid(error, prevError);
-			prevError = error;
+			for(pros::Motor x : drive)
+			{
+				error = destination - x.get_position();
+				x = pid(error, prevError);
+				prevError = error;
+			}
+			pros::delay(10);
 		}
-		pros::delay(10);
 	}
+
+	else if(destination < 0)
+	{
+		while(frontright_mtr.get_position() > destination && frontleft_mtr.get_position() > destination && backright_mtr.get_position() > destination && backleft_mtr.get_position() > destination)
+		{
+			for(pros::Motor x : drive)
+			{
+				error = -destination + x.get_position();
+				x = -pid(error, prevError);
+				prevError = error;
+			}
+			pros::delay(10);
+		}
+	}	
 }
 
 void rightTurn(int turn)
 {
-	frontright_mtr.move_relative(-turn, -100);
-	backright_mtr.move_relative(-turn, -100);
-	frontleft_mtr.move_relative(turn, 100);
-	backright_mtr.move_relative(turn, 100);
+	frontright_mtr.move_relative(-turn, -75);
+	backright_mtr.move_relative(-turn, -75);
+	frontleft_mtr.move_relative(turn, 75);
+	backright_mtr.move_relative(turn, 75);
 }
 
 void leftTurn(int turn)
 {
-	frontright_mtr.move_relative(turn, 100);
-	backright_mtr.move_relative(turn, 100);
-	frontleft_mtr.move_relative(-turn, -100);
-	backright_mtr.move_relative(-turn, -100);
+	frontright_mtr.move_relative(turn, 75);
+	backright_mtr.move_relative(turn, 75);
+	frontleft_mtr.move_relative(-turn, -75);
+	backright_mtr.move_relative(-turn, -75);
 }
 
 void anglerShift(int set) //0 for intaking, 1 for stacking
@@ -98,7 +120,7 @@ void anglerShift(int set) //0 for intaking, 1 for stacking
 	
 
 
-
+bool toggle = false;
 
 //DRIVER CONTROL
 void opcontrol() {
@@ -106,12 +128,45 @@ void opcontrol() {
 
 	while (true) {
 		
-		int left = 0.75 * master.get_analog(ANALOG_LEFT_Y);
-		int right = 0.75 * master.get_analog(ANALOG_RIGHT_Y);
-		if (left > 15 || left < -15)
+	int left = master.get_analog(ANALOG_LEFT_Y);
+	int right = master.get_analog(ANALOG_RIGHT_Y);
+	
+
+	if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B))
+	{
+		if(!toggle)
 		{
-			frontleft_mtr = left;
+			toggle = true;
+		}
+		else
+		{
+			toggle = false;
+		}
+	}
+
+	if (!toggle)
+	{
+		//DRIVE
+		//LEFT
+		if (left > 20 && left < 70)
+		{
 			backleft_mtr = left;
+			frontleft_mtr = left;
+		}
+		else if (left < -20 && left > -70)
+		{
+			backleft_mtr = left;
+			frontleft_mtr = left;
+		}
+		else if (left > 70)
+		{
+			backleft_mtr = 70;
+			frontleft_mtr = 70;
+		}
+		else if (left < -70)
+		{
+			backleft_mtr = -70;
+			frontleft_mtr = -70;
 		}
 		else
 		{
@@ -121,47 +176,65 @@ void opcontrol() {
 			backleft_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 		}
 		
-		if (right > 15 || right < -15)
+		//RIGHT
+		if (right > 20 && right < 70)
 		{
-			backright_mtr = right;
-			frontright_mtr = right;
+			backright_mtr = -right;
+			frontright_mtr = -right;
+		}
+		else if (right < -20 && right > -70)
+		{
+			backright_mtr = -right;
+			frontright_mtr = -right;
+		}
+		else if (right > 70)
+		{
+			backright_mtr = -70;
+			frontright_mtr = -70;
+		}
+		else if (right < -70)
+		{
+			backright_mtr = 70;
+			frontright_mtr = 70;
 		}
 		else
 		{
 			backright_mtr = 0;
 			frontright_mtr = 0;
-			backright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 			frontright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+			backright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 		}
 		
+		//LIFT
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
 		{
 			lift = -75;
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
 		{
-			lift = 200;
+			lift = 100;
 		}
 		else
 		{
 			lift = 1; //gives motor so little power that it can't actually move the lift
-			lift.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD); //doesn't work?
+			lift.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE); //doesn't work?
 		}
 
+		//ANGLER
 		//need to set two positions of angler
-		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
-		{
-			//angler = 50;
-			angler.move_absolute(600, 100);
-		}
-		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B))
-		{
-			//angler = -70;
-			angler.move_absolute(0, -100);
-		}
-
-
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
+		{
+			angler = 50;
+			//angler.move_absolute(600, 100);
+		}
+		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+		{
+			angler = -70;
+			//angler.move_absolute(0, -100);
+		}
+
+		//INTAKE
+		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
 		{
 			left_intake = -70;
 			right_intake = 70;
@@ -171,13 +244,24 @@ void opcontrol() {
 			left_intake = 0;
 			right_intake = 0;
 		}
-		
-		
-
-		
-		
-		
 		pros::delay(20);
-
 	}
+
+	else if (toggle)
+	{
+		angler = right * 0.5;
+		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+		{
+			left_intake = -70;
+			right_intake = 70;
+		}
+		else
+		{
+			left_intake = 0;
+			right_intake = 0;
+		}
+		pros::delay(20);
+	}
+	
+}
 }
