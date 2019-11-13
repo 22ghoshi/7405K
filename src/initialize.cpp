@@ -4,13 +4,9 @@
 
 using namespace std;
 
-typedef void (*autons) (int x);
 
-void topRed(int x);
-void topBlue(int x);
-void botRed(int x);
-void botBlue(int x);
-void skills(int x);
+
+
 
 //vector of autons
 std::vector<string> autonNames{
@@ -18,21 +14,13 @@ std::vector<string> autonNames{
 	"botRed",
 	"topBlue",
 	"botBlue",
-	"skills"
+	"skills",
+	"test"
 };
 
-autons autonfuncs[] = 
-	{
-		topRed,
-		botRed,
-		topBlue,
-		botBlue,
-		skills
-	};
 
 
-
-int autonselect = 1;
+int autonselect = 0;
 int totalautons = autonNames.size();
 
 
@@ -45,21 +33,19 @@ int totalautons = autonNames.size();
  */
 void on_center_button() 
 {
-	pros::lcd::set_text(3, "Running Auton...");
-	pros::delay(5000);
-	autonfuncs[autonselect - 1](0);
+	pros::lcd::set_text(3, "Running Auton " + autonNames[autonselect - 1] + "...");
+	pros::delay(1000);
 }
 
 void on_right_button()
 {
-	if (autonselect = totalautons)
+	if (autonselect == totalautons)
 	{
 		autonselect = 0;
 	}
 	
 	
-		autonselect++;
-		pros::lcd::set_text(7, to_string(totalautons));
+	autonselect++;
 	
 	
 	pros::lcd::set_text(2, autonNames[autonselect - 1]);
@@ -74,6 +60,7 @@ void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Select Auton Below");
 	pros::lcd::set_text(2, "[NONE]");
+	pros::lcd::set_text(5, to_string(autonselect));
 
 	
 

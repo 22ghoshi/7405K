@@ -22,30 +22,61 @@ void move();
 void rightTurn(int turn);
 void leftTurn(int turn);
 void anglerShift(int set); //0 for intaking, 1 for stacking
+void intake(int set); //0 for stop, 1 for go
 
-void topRed(int x)
+void topRed()
 {
-
+    anglerShift(1);
 }
 
-void botRed(int x)
+void botRed()
 {
-
+    //align with closest row
+    //7 = value needed
+    rightTurn(7);
+    move(7);
+    leftTurn(7);
+    //start intake and intake row
+    intake(1);
+    move(7); //move until end line
+    //move down and intake singular orange cube near end line
+    rightTurn(7);
+    move(7);
+    rightTurn(7);
+    //move across end line and align with bottom row
+    move(7);
+    rightTurn(7);
+    //intake row and go all the way to wall 
+    move(7);
+    intake(0);
+    //move to scoring zone
+    leftTurn(7);
+    move(7);
+    //angler
+    anglerShift(1);
+    //move back from stack
+    move(-7);
+    anglerShift(0);
 }
 
-void topBlue(int x)
-{
-
-}
-
-void botBlue(int x)
-{
-
-}
-
-void skills(int x)
+void topBlue()
 {
     
+}
+
+void botBlue()
+{
+
+}
+
+void skills()
+{
+    
+}
+
+void test()
+{
+
 }
 
 void autonomous() 
@@ -55,6 +86,22 @@ void autonomous()
     maximum scoring (skills)
     top red / bot red hoarding cubes
     top blue / bot blue hoarding cubes
-    maybe towers autons for all four
     */
+   switch(autonselect)
+   {
+       case 1: topRed();
+       break;
+       case 2: botRed();
+       break;
+       case 3: topBlue();
+       break;
+       case 4: botBlue();
+       break;
+       case 5: skills();
+       break;
+       case 6: test();
+       break;
+       default: skills();
+       break;
+   }
 }
