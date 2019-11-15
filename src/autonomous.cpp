@@ -31,6 +31,8 @@ void topRed()
 
 void botRed()
 {
+    //need to flip out intake/tray at beginning
+    
     //align with closest row
     //7 = value needed
     rightTurn(7);
@@ -61,12 +63,38 @@ void botRed()
 
 void topBlue()
 {
-    
+
 }
 
 void botBlue()
 {
+    //flip out intake/tray
 
+    //align with bottom row
+    leftTurn(7);
+    move(7);
+    rightTurn(7);
+    //start intake and intake row
+    intake(1);
+    move(7); //move until end line
+    //move up and intake singular green cube near end line
+    rightTurn(7);
+    move(7);
+    rightTurn(7);
+    //move across and intake second bottom row
+    move(7);
+    rightTurn(7);
+    //intake row and go all the way to wall
+    move(7);
+    intake(0);
+    //move to scoring zone
+    rightTurn(7);
+    move(7);
+    //angler
+    anglerShift(1);
+    //move back from stack
+    move(-7);
+    angler(0);
 }
 
 void skills()
@@ -76,7 +104,7 @@ void skills()
 
 void test()
 {
-
+    anglerShift(1);
 }
 
 void autonomous() 
