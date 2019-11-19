@@ -16,13 +16,13 @@ using namespace std;
  * from where it left off.
  */
 
-//functions from opcontrol
+//functions for autons from opcontrol
 double pid(double error);
 void move();
 void rightTurn(int turn);
 void leftTurn(int turn);
 void anglerShift(int set); //0 for intaking, 1 for stacking
-void intake(int set); //0 for stop, 1 for go
+void intake(int set); //0 to stop, 1 for intaking
 
 void topRed()
 {
@@ -94,7 +94,7 @@ void botBlue()
     anglerShift(1);
     //move back from stack
     move(-7);
-    angler(0);
+    anglerShift(0);
 }
 
 void skills()
@@ -129,7 +129,7 @@ void autonomous()
        break;
        case 6: test();
        break;
-       default: skills();
+       default: test();
        break;
    }
 }

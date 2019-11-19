@@ -63,6 +63,7 @@ void move(int destination)
 
 	if(destination > 0)
 	{
+		prevError = destination;
 		while(frontright_mtr.get_position() < destination && frontleft_mtr.get_position() < destination && backright_mtr.get_position() < destination && backleft_mtr.get_position() < destination)
 		{
 			for(pros::Motor x : drive)
@@ -77,6 +78,7 @@ void move(int destination)
 
 	else if(destination < 0)
 	{
+		prevError = -destination;
 		while(frontright_mtr.get_position() > destination && frontleft_mtr.get_position() > destination && backright_mtr.get_position() > destination && backleft_mtr.get_position() > destination)
 		{
 			for(pros::Motor x : drive)
@@ -147,18 +149,20 @@ void opcontrol() {
 	int right = master.get_analog(ANALOG_RIGHT_Y);
 	int x = master.get_digital(DIGITAL_X);
 	
-	if(x == 1 && xPressed)
+	//toggle between drive / angler mode
+	if(x == 1 && !xPressed)
 	{
 		toggle = 1 - toggle;
-		xPressed = false;
+		xPressed = true;
 	}
 	else if(x == 0)
 	{
-		xPressed = true;
+		xPressed = false;
 	}
 
 	pros::lcd::set_text(4, to_string(toggle));
 
+	//normal drive mode, normal controls
 	if (toggle == 0)
 	{
 		//DRIVE
@@ -233,9 +237,14 @@ void opcontrol() {
 		pros::delay(20);
 	}
 
+	//angler drive mode, angler controlled with right joystick here
 	else if (toggle == 1)
 	{
 		angler = right * 0.5;
+		if(right < 20 && right > -20)
+		{
+			angler.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+		}
 
 		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 		{
