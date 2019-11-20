@@ -60,7 +60,6 @@ void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Select Auton Below");
 	pros::lcd::set_text(2, "[NONE]");
-	pros::lcd::set_text(5, to_string(autonselect));
 
 	
 

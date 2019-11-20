@@ -133,11 +133,30 @@ void intake(int set)
 		right_intake = 0;
 	}
 }
+
+void brake_hold(pros::Motor motor)
+{
+	double pos = motor.get_position();
+	int pow = 0;
+	pros::lcd::set_text(6, to_string(pos));
+	pros::delay(100);
+	while(motor.get_position() != pos && motor.get_position() < pos && pow < 50)
+	{
+		pros::lcd::set_text(5, "Motor pos = " + to_string(motor.get_position()));
+		pros::lcd::set_text(6, "Pos = " + to_string(pos));
+		pos = motor.get_position();
+		pow = pow + 1;
+		pros::lcd::set_text(7, to_string(pow));
+		motor = pow;
+		pros::delay(100);
+	}
+}
 	
 
 
 int toggle = 0;
 bool xPressed = false;
+bool anglerbrake = false;
 
 //DRIVER CONTROL
 void opcontrol() {
@@ -145,8 +164,11 @@ void opcontrol() {
 
 	while (true) {
 		
-	int left = master.get_analog(ANALOG_LEFT_Y);
-	int right = master.get_analog(ANALOG_RIGHT_Y);
+	int left1 = master.get_analog(ANALOG_LEFT_Y);
+	int right1 = master.get_analog(ANALOG_RIGHT_Y);
+	//controller dampening
+	int left = 127.0 * std::pow((left1 / 127), (11 / 7));
+	int right = 127.0 * std::pow((right1 / 127), (11 / 7));
 	int x = master.get_digital(DIGITAL_X);
 	
 	//toggle between drive / angler mode
@@ -161,36 +183,36 @@ void opcontrol() {
 	}
 
 	pros::lcd::set_text(4, to_string(toggle));
+	
 
 	//normal drive mode, normal controls
 	if (toggle == 0)
 	{
 		//DRIVE
-
-		if((left < -20 && left > -100) || (left > 20 && left < 100))
+		if((left1 < -20 && left1 > -100) || (left1 > 20 && left1 < 100))
 		{
 			backleft_mtr = left;
 			frontleft_mtr = left;
 		}
 		else
 		{
-			/*backleft_mtr = 0;
-			backright_mtr = 0;*/
-			backleft_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-			frontleft_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+			backleft_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+			frontleft_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+			backleft_mtr = 0;
+			backright_mtr = 0;	
 		}
 
-		if((right < -20 && right > -100) || (right > 20 && right < 100))
+		if((right1 < -20 && right1 > -100) || (right1 > 20 && right1 < 100))
 		{
 			backright_mtr = -right;
 			frontright_mtr = -right;
 		}
 		else
 		{
-			/*backright_mtr = 0;
-			frontright_mtr = 0;*/
-			backright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-			frontright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+			backright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+			frontright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+			backright_mtr = 0;
+			frontright_mtr = 0;
 		}
 		
 		
@@ -205,22 +227,31 @@ void opcontrol() {
 		}
 		else
 		{
-			lift = 1; //gives motor so little power that it can't actually move the lift
 			lift.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD); //doesn't work?
+			lift = 0; //gives motor so little power that it can't actually move the lift
 		}
 
 		//ANGLER
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
 		{
 			angler = 85;
+			anglerbrake = false;
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 		{
 			angler = -85;
+			anglerbrake = false;
 		}
 		else
 		{
 			angler.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+			angler = 0;
+			if(!anglerbrake)
+			{
+				brake_hold(angler);
+				anglerbrake = true;
+			}
+			
 		}
 
 		//INTAKE
@@ -231,6 +262,8 @@ void opcontrol() {
 		}
 		else
 		{
+			left_intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+			right_intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 			left_intake = 0;
 			right_intake = 0;
 		}
@@ -240,12 +273,16 @@ void opcontrol() {
 	//angler drive mode, angler controlled with right joystick here
 	else if (toggle == 1)
 	{
-		angler = right * 0.5;
 		if(right < 20 && right > -20)
 		{
 			angler.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+			angler = 0;
 		}
-
+		else
+		{
+			angler = right * 0.5;
+		}
+		
 		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 		{
 			left_intake = 35;
@@ -253,6 +290,8 @@ void opcontrol() {
 		}
 		else
 		{
+			left_intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+			right_intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 			left_intake = 0;
 			right_intake = 0;
 		}
