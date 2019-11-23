@@ -37,10 +37,11 @@ pros::Motor left_intake(7);
 pros::Motor right_intake(8);
 
 //AUTON FUNCTIONS
+double integral = 0;
 double pid(double err, double prevErr) //don't use this function directly just use move()
 {
 	//PID stuff
-	double integral = 0, deriv, pid;
+	double deriv, pid;
 	double ce, ci, cd; //coefficients need to be determined through testing actual bot
 	//error pushes it, integral needs to be small (gives it last push), deriv slows it as it reaches target
 	//360 encoder units = 1 rotation of motor
@@ -56,6 +57,7 @@ void move(int destination)
 {
 	double prevError = 0;
 	double error;
+	integral = 0;
 	for(pros::Motor x : drive)
 	{
 		x.tare_position();
@@ -134,7 +136,7 @@ void intake(int set)
 	}
 }
 
-void brake_hold(pros::Motor motor)
+/*void brake_hold(pros::Motor motor)
 {
 	double pos = motor.get_position();
 	int pow = 0;
@@ -150,7 +152,7 @@ void brake_hold(pros::Motor motor)
 		motor = pow;
 		pros::delay(100);
 	}
-}
+}*/
 	
 
 
@@ -164,11 +166,12 @@ void opcontrol() {
 
 	while (true) {
 		
-	int left1 = master.get_analog(ANALOG_LEFT_Y);
-	int right1 = master.get_analog(ANALOG_RIGHT_Y);
+	int left1 = master.get_analog(ANALOG_RIGHT_X);
+	int right1 = master.get_analog(ANALOG_LEFT_Y);
 	//controller dampening
-	int left = 127.0 * std::pow((left1 / 127), (11 / 7));
-	int right = 127.0 * std::pow((right1 / 127), (11 / 7));
+	int left = (int) std::round(127.0 * std::pow((left1 / 127), (11 / 7)));
+	int right = (int) std::round(127.0 * std::pow((right1 / 127), (11 / 7)));
+	int final_left, final_right, turn;
 	int x = master.get_digital(DIGITAL_X);
 	
 	//toggle between drive / angler mode
@@ -181,18 +184,18 @@ void opcontrol() {
 	{
 		xPressed = false;
 	}
-
-	pros::lcd::set_text(4, to_string(toggle));
 	
 
 	//normal drive mode, normal controls
 	if (toggle == 0)
 	{
 		//DRIVE
-		if((left1 < -20 && left1 > -100) || (left1 > 20 && left1 < 100))
+		//TANK DRIVE
+		/*if((left1 < -20 && left1 > -100) || (left1 > 20 && left1 < 100))
 		{
 			backleft_mtr = left;
 			frontleft_mtr = left;
+			
 		}
 		else
 		{
@@ -213,9 +216,37 @@ void opcontrol() {
 			frontright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 			backright_mtr = 0;
 			frontright_mtr = 0;
-		}
+		}*/
+
+		/*backright_mtr = -right1;
+		backleft_mtr = left1;
+		frontright_mtr = -right1;
+		frontleft_mtr = left1;*/
+
+		//ARCADE DRIVE
+		
+			final_left = left1;
+			final_right = left1;
 		
 		
+			
+		
+		
+		
+			turn = right1;
+		
+		
+			
+		
+
+		backleft_mtr = 0.5 * (final_left - turn);
+		backright_mtr = 0.5 * (final_right + turn);
+		frontleft_mtr = 0.5 * (final_left - turn);
+		frontright_mtr =  0.5 * (final_right + turn);
+	pros::lcd::set_text(4, to_string(left1));
+	pros::lcd::set_text(5, to_string(right1));
+
+
 		//LIFT
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
 		{
@@ -235,23 +266,15 @@ void opcontrol() {
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
 		{
 			angler = 85;
-			anglerbrake = false;
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 		{
 			angler = -85;
-			anglerbrake = false;
 		}
 		else
 		{
 			angler.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 			angler = 0;
-			if(!anglerbrake)
-			{
-				brake_hold(angler);
-				anglerbrake = true;
-			}
-			
 		}
 
 		//INTAKE
@@ -278,7 +301,7 @@ void opcontrol() {
 			angler.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 			angler = 0;
 		}
-		else
+		else if(right > -100 && right < 100)
 		{
 			angler = right * 0.5;
 		}
