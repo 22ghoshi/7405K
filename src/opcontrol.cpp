@@ -20,10 +20,10 @@ using namespace std;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-pros::Motor backleft_mtr(1);
-pros::Motor backright_mtr(2);
-pros::Motor frontleft_mtr(3);
-pros::Motor frontright_mtr(4);
+pros::Motor backleft_mtr(6);
+pros::Motor backright_mtr(4);
+pros::Motor frontleft_mtr(5);
+pros::Motor frontright_mtr(7);
 pros::Motor drive[4]
 {
 	backleft_mtr,
@@ -31,10 +31,10 @@ pros::Motor drive[4]
 	frontleft_mtr,
 	frontright_mtr
 };
-pros::Motor angler(5);
-pros::Motor lift(6);
-pros::Motor left_intake(7);
-pros::Motor right_intake(8);
+pros::Motor angler(9);
+pros::Motor lift(8);
+pros::Motor left_intake(1);
+pros::Motor right_intake(2);
 
 //AUTON FUNCTIONS
 double integral = 0;
@@ -166,11 +166,11 @@ void opcontrol() {
 
 	while (true) {
 		
-	int left1 = master.get_analog(ANALOG_RIGHT_X);
-	int right1 = master.get_analog(ANALOG_LEFT_Y);
+	int left = master.get_analog(ANALOG_LEFT_Y);
+	int right = master.get_analog(ANALOG_RIGHT_X);
 	//controller dampening
-	int left = (int) std::round(127.0 * std::pow((left1 / 127), (11 / 7)));
-	int right = (int) std::round(127.0 * std::pow((right1 / 127), (11 / 7)));
+	int left1 = (int) std::round(127.0 * std::pow((left1 / 127), (11 / 7)));
+	int right1 = (int) std::round(127.0 * std::pow((right1 / 127), (11 / 7)));
 	int final_left, final_right, turn;
 	int x = master.get_digital(DIGITAL_X);
 	
@@ -224,25 +224,10 @@ void opcontrol() {
 		frontleft_mtr = left1;*/
 
 		//ARCADE DRIVE
-		
-			final_left = left1;
-			final_right = left1;
-		
-		
-			
-		
-		
-		
-			turn = right1;
-		
-		
-			
-		
-
-		backleft_mtr = 0.5 * (final_left - turn);
-		backright_mtr = 0.5 * (final_right + turn);
-		frontleft_mtr = 0.5 * (final_left - turn);
-		frontright_mtr =  0.5 * (final_right + turn);
+		backleft_mtr = (left - right);
+		backright_mtr = (left + right);
+		frontleft_mtr = (left - right);
+		frontright_mtr =  (left + right);
 	pros::lcd::set_text(4, to_string(left1));
 	pros::lcd::set_text(5, to_string(right1));
 
