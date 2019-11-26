@@ -157,19 +157,27 @@ void intake(int set)
 
 int toggle = 0;
 bool xPressed = false;
-bool anglerbrake = false;
+bool startLift = false;
 
 //DRIVER CONTROL
 void opcontrol() {
 
 
 	while (true) {
+
+		if(!startLift)
+		{
+			lift.move_absolute(20, 50);
+			startLift = true;
+		}
 		
 	int left = -1 * master.get_analog(ANALOG_RIGHT_X);
 	int right = master.get_analog(ANALOG_LEFT_Y);
 	//controller dampening
-	int left1 = (int) std::round(127.0 * std::pow((left1 / 127), (11 / 7)));
-	int right1 = (int) std::round(127.0 * std::pow((right1 / 127), (11 / 7)));
+	double left1 = 127.0 * std::pow((double) left / 127, (double) 11 / 7);
+	double right1 = 127.0 * std::pow((double) right / 127, (double) 11 / 7);
+	int left2 = (int) std::round(left1);
+	int right2 = (int) std::round(right1);
 	int final_left, final_right, turn;
 	int x = master.get_digital(DIGITAL_X);
 	
@@ -227,12 +235,13 @@ void opcontrol() {
 		frontleft_mtr = left1;*/
 
 		//ARCADE DRIVE
-		backleft_mtr = (left - right);
-		backright_mtr = (left + right);
-		frontleft_mtr = (left - right);
-		frontright_mtr =  (left + right);
-	pros::lcd::set_text(5, to_string(left1));
-	pros::lcd::set_text(6, to_string(right1));
+		if ((left2 > 15 || left2 < -15) && (right2 > 15 || right2 < -15))
+		backleft_mtr = (left2 - right2);
+		backright_mtr = (left2 + right2);
+		frontleft_mtr = (left2 - right2);
+		frontright_mtr =  (left2 + right2);
+		pros::lcd::set_text(5, to_string(left2));
+		pros::lcd::set_text(6, to_string(right2));
 
 
 		//LIFT
