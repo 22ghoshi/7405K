@@ -166,8 +166,8 @@ void opcontrol() {
 
 	while (true) {
 		
-	int left = master.get_analog(ANALOG_LEFT_Y);
-	int right = master.get_analog(ANALOG_RIGHT_X);
+	int left = -1 * master.get_analog(ANALOG_RIGHT_X);
+	int right = master.get_analog(ANALOG_LEFT_Y);
 	//controller dampening
 	int left1 = (int) std::round(127.0 * std::pow((left1 / 127), (11 / 7)));
 	int right1 = (int) std::round(127.0 * std::pow((right1 / 127), (11 / 7)));
@@ -179,16 +179,20 @@ void opcontrol() {
 	{
 		toggle = 1 - toggle;
 		xPressed = true;
+		pros::lcd::set_text(4, to_string(toggle));
 	}
 	else if(x == 0)
 	{
 		xPressed = false;
 	}
+
+	
 	
 
 	//normal drive mode, normal controls
 	if (toggle == 0)
 	{
+		pros::lcd::set_text(4, "DRIVE");
 		//DRIVE
 		//TANK DRIVE
 		/*if((left1 < -20 && left1 > -100) || (left1 > 20 && left1 < 100))
@@ -228,8 +232,8 @@ void opcontrol() {
 		backright_mtr = (left + right);
 		frontleft_mtr = (left - right);
 		frontright_mtr =  (left + right);
-	pros::lcd::set_text(4, to_string(left1));
-	pros::lcd::set_text(5, to_string(right1));
+	pros::lcd::set_text(5, to_string(left1));
+	pros::lcd::set_text(6, to_string(right1));
 
 
 		//LIFT
@@ -239,7 +243,7 @@ void opcontrol() {
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
 		{
-			lift = 100;
+			lift = 75;
 		}
 		else
 		{
@@ -278,9 +282,10 @@ void opcontrol() {
 		pros::delay(20);
 	}
 
-	//angler drive mode, angler controlled with right joystick here
+	//angler drive mode, angler controlled with left joystick here
 	else if (toggle == 1)
 	{
+		pros::lcd::set_text(4, "ANGLER");
 		if(right < 20 && right > -20)
 		{
 			angler.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
