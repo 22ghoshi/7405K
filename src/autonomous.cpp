@@ -35,6 +35,7 @@ void botRed()
     
     //align with closest row
     //7 = value needed
+    /*
     rightTurn(7);
     move(7);
     leftTurn(7);
@@ -59,6 +60,19 @@ void botRed()
     //move back from stack
     move(-7);
     anglerShift(0);
+    */
+
+    intake(1);
+    move(100);
+    move(-90);
+    intake(0);
+    rightTurn(100);
+    move(50);
+    anglerShift(1);
+    pros::delay(1000);
+    move(-10);
+    
+   
 }
 
 void topBlue()

@@ -156,37 +156,29 @@ void intake(int set)
 
 
 int toggle = 0;
+int intak = 0;
 bool xPressed = false;
-bool startLift = false;
+bool aPressed = false;
 
 //DRIVER CONTROL
 void opcontrol() {
 
 
 	while (true) {
-
-		if(!startLift)
-		{
-			lift.move_absolute(20, 50);
-			startLift = true;
-		}
 		
-	int left = -1 * master.get_analog(ANALOG_RIGHT_X);
-	int right = master.get_analog(ANALOG_LEFT_Y);
+	int left = master.get_analog(ANALOG_RIGHT_X);
+	int right = -1 *  master.get_analog(ANALOG_LEFT_Y);
 	//controller dampening
-	double left1 = 127.0 * std::pow((double) left / 127, (double) 11 / 7);
-	double right1 = 127.0 * std::pow((double) right / 127, (double) 11 / 7);
-	int left2 = (int) std::round(left1);
-	int right2 = (int) std::round(right1);
-	int final_left, final_right, turn;
+	int left1 = (int) std::round(127.0 * std::pow((double) left / 127, (double) 11 / 7));
+	int right1 = (int) std::round(127.0 * std::pow((double) right / 127, (double) 11 / 7));
 	int x = master.get_digital(DIGITAL_X);
+	int a  = master.get_digital(DIGITAL_A);
 	
 	//toggle between drive / angler mode
 	if(x == 1 && !xPressed)
 	{
 		toggle = 1 - toggle;
 		xPressed = true;
-		pros::lcd::set_text(4, to_string(toggle));
 	}
 	else if(x == 0)
 	{
@@ -201,47 +193,14 @@ void opcontrol() {
 	{
 		pros::lcd::set_text(4, "DRIVE");
 		//DRIVE
-		//TANK DRIVE
-		/*if((left1 < -20 && left1 > -100) || (left1 > 20 && left1 < 100))
-		{
-			backleft_mtr = left;
-			frontleft_mtr = left;
-			
-		}
-		else
-		{
-			backleft_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-			frontleft_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-			backleft_mtr = 0;
-			backright_mtr = 0;	
-		}
-
-		if((right1 < -20 && right1 > -100) || (right1 > 20 && right1 < 100))
-		{
-			backright_mtr = -right;
-			frontright_mtr = -right;
-		}
-		else
-		{
-			backright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-			frontright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-			backright_mtr = 0;
-			frontright_mtr = 0;
-		}*/
-
-		/*backright_mtr = -right1;
-		backleft_mtr = left1;
-		frontright_mtr = -right1;
-		frontleft_mtr = left1;*/
-
 		//ARCADE DRIVE
-		if ((left2 > 15 || left2 < -15) && (right2 > 15 || right2 < -15))
-		backleft_mtr = (left2 - right2);
-		backright_mtr = (left2 + right2);
-		frontleft_mtr = (left2 - right2);
-		frontright_mtr =  (left2 + right2);
-		pros::lcd::set_text(5, to_string(left2));
-		pros::lcd::set_text(6, to_string(right2));
+		backleft_mtr = (left - right);
+		backright_mtr = (left + right);
+		frontleft_mtr = (left - right);
+		frontright_mtr =  (left + right);
+		
+		pros::lcd::set_text(5, to_string(left));
+		pros::lcd::set_text(6, to_string(right));
 
 
 		//LIFT
@@ -251,6 +210,7 @@ void opcontrol() {
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
 		{
+			angler.move_absolute(100, 100);
 			lift = 75;
 		}
 		else
@@ -275,10 +235,25 @@ void opcontrol() {
 		}
 
 		//INTAKE
-		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+		if(a == 1 && !aPressed)
 		{
-			left_intake = -70;
-			right_intake = 70;
+			intak = 1 - intak;
+			aPressed = true;
+		}
+		else if(a == 0)
+		{
+			aPressed = false;
+		}
+
+		if(intak == 1)
+		{
+			left_intake = -60;
+			right_intake = 60;
+		}
+		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B))
+		{
+			left_intake = 40;
+			right_intake = -40;
 		}
 		else
 		{
@@ -299,7 +274,7 @@ void opcontrol() {
 			angler.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 			angler = 0;
 		}
-		else if(right > -100 && right < 100)
+		else
 		{
 			angler = right * 0.5;
 		}
