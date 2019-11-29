@@ -210,7 +210,10 @@ void opcontrol() {
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
 		{
-			angler.move_absolute(100, 100);
+			if(angler.get_position() < 720)
+			{
+				angler.move_absolute(720, 80);
+			}
 			lift = 75;
 		}
 		else
@@ -247,13 +250,13 @@ void opcontrol() {
 
 		if(intak == 1)
 		{
-			left_intake = -60;
-			right_intake = 60;
+			left_intake = 60;
+			right_intake = -60;
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B))
 		{
-			left_intake = 40;
-			right_intake = -40;
+			left_intake = -40;
+			right_intake = 40;
 		}
 		else
 		{

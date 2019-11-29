@@ -16,6 +16,18 @@ using namespace std;
  * from where it left off.
  */
 
+pros::Motor backleft_mtr(6);
+pros::Motor backright_mtr(4);
+pros::Motor frontleft_mtr(5);
+pros::Motor frontright_mtr(7);
+pros::Motor drive[4]
+{
+	backleft_mtr,
+	backright_mtr,
+	frontleft_mtr,
+	frontright_mtr
+};
+extern int autonselect;
 //functions for autons from opcontrol
 double pid(double error);
 void move();
@@ -26,7 +38,7 @@ void intake(int set); //0 to stop, 1 for intaking
 
 void topRed()
 {
-    anglerShift(1);
+    
 }
 
 void botRed()
@@ -62,6 +74,7 @@ void botRed()
     anglerShift(0);
     */
 
+    /*
     intake(1);
     move(100);
     move(-90);
@@ -71,7 +84,7 @@ void botRed()
     anglerShift(1);
     pros::delay(1000);
     move(-10);
-    
+    */
    
 }
 
@@ -82,6 +95,7 @@ void topBlue()
 
 void botBlue()
 {
+    /*
     //flip out intake/tray
 
     //align with bottom row
@@ -109,16 +123,47 @@ void botBlue()
     //move back from stack
     move(-7);
     anglerShift(0);
+    */
 }
 
 void skills()
 {
-    
+    rightTurn(90, 90);
+    for(pros::Motor x : drive)
+    {
+        .x = 90;
+    }
+    pros::delay(3000);
+    for(pros::Motor x : drive)
+    {
+        .x = -45;
+    }
+    pros::delay(500);
+    for(pros::Motor x : drive)
+    {
+        x.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);.
+        x = 0;
+    }
 }
 
 void test()
 {
-    anglerShift(1);
+    leftTurn(90, 90);
+    for(pros::Motor x : drive)
+    {
+        .x = 45;
+    }
+    pros::delay(3000);
+    for(pros::Motor x : drive)
+    {
+        .x = -45;
+    }
+    pros::delay(500);
+    for(pros::Motor x : drive)
+    {
+        x.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);.
+        x = 0;
+    }
 }
 
 void autonomous() 
