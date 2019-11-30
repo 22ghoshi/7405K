@@ -16,20 +16,10 @@ using namespace std;
  * from where it left off.
  */
 
-pros::Motor backleft_mtr(6);
-pros::Motor backright_mtr(4);
-pros::Motor frontleft_mtr(5);
-pros::Motor frontright_mtr(7);
-pros::Motor drive[4]
-{
-	backleft_mtr,
-	backright_mtr,
-	frontleft_mtr,
-	frontright_mtr
-};
 extern int autonselect;
 //functions for autons from opcontrol
 double pid(double error);
+void driveSet(int speed);
 void move();
 void rightTurn(int turn);
 void leftTurn(int turn);
@@ -128,42 +118,22 @@ void botBlue()
 
 void skills()
 {
-    rightTurn(90, 90);
-    for(pros::Motor x : drive)
-    {
-        .x = 90;
-    }
+    rightTurn(90);
+    driveSet(45);
     pros::delay(3000);
-    for(pros::Motor x : drive)
-    {
-        .x = -45;
-    }
+    driveSet(-45);
     pros::delay(500);
-    for(pros::Motor x : drive)
-    {
-        x.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);.
-        x = 0;
-    }
+    driveSet(0);
 }
 
 void test()
 {
-    leftTurn(90, 90);
-    for(pros::Motor x : drive)
-    {
-        .x = 45;
-    }
+    leftTurn(90);
+    driveSet(45);
     pros::delay(3000);
-    for(pros::Motor x : drive)
-    {
-        .x = -45;
-    }
+    driveSet(-45);
     pros::delay(500);
-    for(pros::Motor x : drive)
-    {
-        x.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);.
-        x = 0;
-    }
+    driveSet(0);
 }
 
 void autonomous() 

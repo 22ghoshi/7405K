@@ -52,6 +52,25 @@ double pid(double err, double prevErr) //don't use this function directly just u
 	return pid;
 }
 
+void driveSet(int speed)
+{
+	if(speed == 0)
+	{
+		for(pros::Motor x : drive)
+		{
+			x.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+			x = 0;
+		}
+	}
+	else
+	{
+		for(pros::Motor x : drive)
+		{
+			x = speed;
+		}
+	}
+}
+
 void move(int destination)
 {
 	double prevError = 0;
@@ -156,9 +175,7 @@ void intake(int set)
 
 
 int toggle = 0;
-int intak = 0;
 bool xPressed = false;
-bool aPressed = false;
 
 //DRIVER CONTROL
 void opcontrol() {
@@ -194,27 +211,27 @@ void opcontrol() {
 		pros::lcd::set_text(4, "DRIVE");
 		//DRIVE
 		//ARCADE DRIVE
-		backleft_mtr = (left - right);
-		backright_mtr = (left + right);
-		frontleft_mtr = (left - right);
-		frontright_mtr =  (left + right);
+		backleft_mtr = (0.9) * (left - right);
+		backright_mtr = (0.9) * (left + right);
+		frontleft_mtr = (0.9) * (left - right);
+		frontright_mtr =  (0.9) * (left + right);
 		
 		pros::lcd::set_text(5, to_string(left));
 		pros::lcd::set_text(6, to_string(right));
 
 
 		//LIFT
-		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
+		if(master.get_digital(DIGITAL_B))
 		{
 			lift = -75;
 		}
-		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
+		else if(master.get_digital(DIGITAL_Y))
 		{
-			if(angler.get_position() < 720)
+			/*if(angler.get_position() < 720)
 			{
 				angler.move_absolute(720, 80);
-			}
-			lift = 75;
+			}*/
+			lift = 127;
 		}
 		else
 		{
@@ -238,25 +255,15 @@ void opcontrol() {
 		}
 
 		//INTAKE
-		if(a == 1 && !aPressed)
+		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
 		{
-			intak = 1 - intak;
-			aPressed = true;
+			left_intake = 127;
+			right_intake = -127;
 		}
-		else if(a == 0)
+		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
 		{
-			aPressed = false;
-		}
-
-		if(intak == 1)
-		{
-			left_intake = 60;
-			right_intake = -60;
-		}
-		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B))
-		{
-			left_intake = -40;
-			right_intake = 40;
+			left_intake = -120;
+			right_intake = 120;
 		}
 		else
 		{
@@ -282,7 +289,7 @@ void opcontrol() {
 			angler = right * 0.5;
 		}
 		
-		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
 		{
 			left_intake = 35;
 			right_intake = -35;
