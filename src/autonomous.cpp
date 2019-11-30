@@ -19,7 +19,7 @@ using namespace std;
 extern int autonselect;
 //functions for autons from opcontrol
 double pid(double error);
-void driveSet(int speed);
+void driveMove(int dist);
 void move();
 void rightTurn(int turn);
 void leftTurn(int turn);
@@ -118,22 +118,16 @@ void botBlue()
 
 void skills()
 {
-    rightTurn(90);
-    driveSet(45);
-    pros::delay(3000);
-    driveSet(-45);
-    pros::delay(500);
-    driveSet(0);
+    
+    driveMove(90);
+    driveMove(-90);
 }
 
 void test()
 {
     leftTurn(90);
-    driveSet(45);
-    pros::delay(3000);
-    driveSet(-45);
-    pros::delay(500);
-    driveSet(0);
+    driveMove(90);
+    driveMove(-90);
 }
 
 void autonomous() 

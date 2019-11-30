@@ -52,23 +52,12 @@ double pid(double err, double prevErr) //don't use this function directly just u
 	return pid;
 }
 
-void driveSet(int speed)
+void driveMove(int dist)
 {
-	if(speed == 0)
-	{
-		for(pros::Motor x : drive)
-		{
-			x.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-			x = 0;
-		}
-	}
-	else
-	{
-		for(pros::Motor x : drive)
-		{
-			x = speed;
-		}
-	}
+	backleft_mtr.move_relative(dist, 90);
+	backright_mtr.move_relative(dist, -90);
+	frontleft_mtr.move_relative(dist, 90);
+	frontright_mtr.move_relative(dist, -90);
 }
 
 void move(int destination)
@@ -174,7 +163,6 @@ void intake(int set)
 	
 
 
-int toggle = 0;
 bool xPressed = false;
 
 //DRIVER CONTROL
@@ -190,23 +178,12 @@ void opcontrol() {
 	int right1 = (int) std::round(127.0 * std::pow((double) right / 127, (double) 11 / 7));
 	int x = master.get_digital(DIGITAL_X);
 	int a  = master.get_digital(DIGITAL_A);
-	
-	//toggle between drive / angler mode
-	if(x == 1 && !xPressed)
-	{
-		toggle = 1 - toggle;
-		xPressed = true;
-	}
-	else if(x == 0)
-	{
-		xPressed = false;
-	}
 
 	
 	
 
 	//normal drive mode, normal controls
-	if (toggle == 0)
+	if(a == 0)
 	{
 		pros::lcd::set_text(4, "DRIVE");
 		//DRIVE
@@ -242,11 +219,11 @@ void opcontrol() {
 		//ANGLER
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
 		{
-			angler = 85;
+			angler = 55;
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 		{
-			angler = -85;
+			angler = -55;
 		}
 		else
 		{
@@ -262,8 +239,8 @@ void opcontrol() {
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
 		{
-			left_intake = -120;
-			right_intake = 120;
+			left_intake = -40;
+			right_intake = 40;
 		}
 		else
 		{
@@ -275,34 +252,14 @@ void opcontrol() {
 		pros::delay(20);
 	}
 
-	//angler drive mode, angler controlled with left joystick here
-	else if (toggle == 1)
+	else if (a == 1)
 	{
-		pros::lcd::set_text(4, "ANGLER");
-		if(right < 20 && right > -20)
-		{
-			angler.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-			angler = 0;
-		}
-		else
-		{
-			angler = right * 0.5;
-		}
-		
-		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
-		{
-			left_intake = 35;
-			right_intake = -35;
-		}
-		else
-		{
-			left_intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-			right_intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-			left_intake = 0;
-			right_intake = 0;
-		}
-		pros::delay(20);
+		backleft_mtr = -50;
+		backright_mtr = 50;
+		frontleft_mtr = -50;
+		frontright_mtr = 50;
+		left_intake = -80;
+		right_intake = 80;
 	}
-	
 }
 }
