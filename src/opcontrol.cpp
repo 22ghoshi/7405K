@@ -133,25 +133,36 @@ void intake(int set)
 		left_intake = 0;
 		right_intake = 0;
 	}
+	else if(set == -1)
+	{
+		left_intake = -40;
+		right_intake = 40;
+	}
 }
 
 void driveMove(int dist)
 {
 	backleft_mtr.move_relative(dist, 90);
-	backright_mtr.move_relative(-dist, -90);
-	frontleft_mtr.move_relative(dist, 90);
-	frontright_mtr.move_relative(-dist, -90);
+	backright_mtr.move_relative(dist, 90);
+	frontleft_mtr.move_relative(-dist, 90);
+	frontright_mtr.move_relative(-dist, 90);
 }
 
 void flip()
 {
-	angler.move_absolute(1080, 65);
-	while (!((angler.get_position() < 1075) && (angler.get_position() > 1085))) 
+	angler.move_absolute(1195, 65);
+	while (angler.get_position() < 1193) 
 	{
     pros::delay(2);
   	}
-	intake(1);
-	pros::delay(5000);
+	pros::delay(500);
+	angler.move_absolute(100, -65);
+	while (angler.get_position() > 101) 
+	{
+    pros::delay(2);
+  	}
+	pros::delay(500);
+	//lift.move_absolute(720, 127);
 }
 
 /*void brake_hold(pros::Motor motor)
@@ -204,8 +215,7 @@ void opcontrol() {
 		frontleft_mtr = (0.9) * (left - right);
 		frontright_mtr =  (0.9) * (left + right);
 		
-		pros::lcd::set_text(5, to_string(left));
-		pros::lcd::set_text(6, to_string(right));
+		pros::lcd::set_text(5, to_string(angler.get_position()));
 
 
 		//LIFT
@@ -260,6 +270,12 @@ void opcontrol() {
 			left_intake = 0;
 			right_intake = 0;
 		}
+
+		//flip
+		/*if(x == 1)
+		{
+			flip();
+		}*/
 		pros::delay(20);
 	}
 

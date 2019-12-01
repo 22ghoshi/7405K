@@ -65,11 +65,11 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/opcontrol.cpp.o",
-            "src\\opcontrol.cpp"
+            "bin/autonomous.cpp.o",
+            "src\\autonomous.cpp"
         ],
         "directory": "C:\\Users\\ishaa\\Documents\\robotics\\7405K",
-        "file": "src\\opcontrol.cpp"
+        "file": "src\\autonomous.cpp"
     },
     {
         "arguments": [
@@ -101,10 +101,10 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/autonomous.cpp.o",
-            "src\\autonomous.cpp"
+            "bin/opcontrol.cpp.o",
+            "src\\opcontrol.cpp"
         ],
         "directory": "C:\\Users\\ishaa\\Documents\\robotics\\7405K",
-        "file": "src\\autonomous.cpp"
+        "file": "src\\opcontrol.cpp"
     }
 ]
