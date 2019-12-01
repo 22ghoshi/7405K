@@ -20,7 +20,7 @@ std::vector<string> autonNames{
 
 
 
-int autonselect = 0;
+int autonselect = 5;
 int totalautons = autonNames.size();
 
 
@@ -58,6 +58,7 @@ void on_left_button()
 
 void initialize() {
 	pros::lcd::initialize();
+	pros::delay(500);
 	pros::lcd::set_text(1, "Select Auton Below");
 	pros::lcd::set_text(2, "[NONE]");
 

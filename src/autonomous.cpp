@@ -19,12 +19,13 @@ using namespace std;
 extern int autonselect;
 //functions for autons from opcontrol
 double pid(double error);
-void driveMove(int dist);
 void move();
 void rightTurn(int turn);
 void leftTurn(int turn);
 void anglerShift(int set); //0 for intaking, 1 for stacking
 void intake(int set); //0 to stop, 1 for intaking
+void driveMove(int dist);
+void flip();
 
 void topRed()
 {
@@ -120,14 +121,16 @@ void skills()
 {
     
     driveMove(90);
+    pros::delay(5000);
     driveMove(-90);
 }
 
 void test()
 {
-    leftTurn(90);
-    driveMove(90);
-    driveMove(-90);
+    flip();
+    /*driveMove(1080);
+    pros::delay(5000);
+    driveMove(1080);*/
 }
 
 void autonomous() 
@@ -138,6 +141,7 @@ void autonomous()
     top red / bot red hoarding cubes
     top blue / bot blue hoarding cubes
     */
+   pros::lcd::print(6, "%d", autonselect);
    switch(autonselect)
    {
        case 1: topRed();

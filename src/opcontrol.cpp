@@ -52,14 +52,6 @@ double pid(double err, double prevErr) //don't use this function directly just u
 	return pid;
 }
 
-void driveMove(int dist)
-{
-	backleft_mtr.move_relative(dist, 90);
-	backright_mtr.move_relative(dist, -90);
-	frontleft_mtr.move_relative(dist, 90);
-	frontright_mtr.move_relative(dist, -90);
-}
-
 void move(int destination)
 {
 	double prevError = 0;
@@ -141,6 +133,25 @@ void intake(int set)
 		left_intake = 0;
 		right_intake = 0;
 	}
+}
+
+void driveMove(int dist)
+{
+	backleft_mtr.move_relative(dist, 90);
+	backright_mtr.move_relative(-dist, -90);
+	frontleft_mtr.move_relative(dist, 90);
+	frontright_mtr.move_relative(-dist, -90);
+}
+
+void flip()
+{
+	angler.move_absolute(1080, 65);
+	while (!((angler.get_position() < 1075) && (angler.get_position() > 1085))) 
+	{
+    pros::delay(2);
+  	}
+	intake(1);
+	pros::delay(5000);
 }
 
 /*void brake_hold(pros::Motor motor)
