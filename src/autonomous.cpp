@@ -4,6 +4,14 @@
 
 using namespace std;
 
+extern pros::Motor left_intake;
+extern pros::Motor right_intake;
+extern pros::Motor angler;
+extern pros::Motor backleft_mtr;
+extern pros::Motor backright_mtr;
+extern pros::Motor frontleft_mtr;
+extern pros::Motor frontright_mtr;
+
 /**
  * Runs the user autonomous code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -22,10 +30,8 @@ double pid(double error);
 void move();
 void rightTurn(int turn);
 void leftTurn(int turn);
-void anglerShift(int set); //0 for intaking, 1 for stacking
-void intake(int set); //0 to stop, 1 for intaking, -1 for outtaking
 void driveMove(int dist);
-void flip();
+void driveMove(int dist, int speed);
 
 void topRed()
 {
@@ -34,49 +40,39 @@ void topRed()
 
 void botRed()
 {
-    //need to flip out intake/tray at beginning
-    
-    //align with closest row
-    //7 = value needed
-    /*
-    rightTurn(7);
-    move(7);
-    leftTurn(7);
-    //start intake and intake row
-    intake(1);
-    move(7); //move until end line
-    //move down and intake singular orange cube near end line
-    rightTurn(7);
-    move(7);
-    rightTurn(7);
-    //move across end line and align with bottom row
-    move(7);
-    rightTurn(7);
-    //intake row and go all the way to wall 
-    move(7);
-    intake(0);
-    //move to scoring zone
-    leftTurn(7);
-    move(7);
-    //angler
-    anglerShift(1);
-    //move back from stack
-    move(-7);
-    anglerShift(0);
-    */
+    //place bot in front of four row, put preload in front of it
+    //flip out intake/tray at beginning
+    left_intake = -40;
+    right_intake = 40;
+    pros::delay(1250);
+    left_intake = 0;
+    right_intake = 0;
 
-    /*
-    intake(1);
-    move(100);
-    move(-90);
-    intake(0);
-    rightTurn(100);
-    move(50);
-    anglerShift(1);
-    pros::delay(1000);
-    move(-10);
-    */
-   
+    //intake row of five (w/ preload)
+    left_intake = 127;
+    right_intake = -127;
+    driveMove(2500, 60);
+
+    //move back and turn to face corner
+    driveMove(-1750, -100);
+    rightTurn(1500);
+
+    //move to corner and angle stack vertical
+    driveMove(500);
+    angler.move_absolute(1195, 55);
+    while(angler.get_position() < 1193)
+    {
+        pros::delay(2);
+    }
+
+    //back away
+    backleft_mtr = -50;
+	backright_mtr = 50;
+	frontleft_mtr = -50;
+	frontright_mtr = 50;
+    left_intake = -85;
+    right_intake = 85;
+
 }
 
 void topBlue()
@@ -86,51 +82,20 @@ void topBlue()
 
 void botBlue()
 {
-    /*
-    //flip out intake/tray
 
-    //align with bottom row
-    leftTurn(7);
-    move(7);
-    rightTurn(7);
-    //start intake and intake row
-    intake(1);
-    move(7); //move until end line
-    //move up and intake singular green cube near end line
-    rightTurn(7);
-    move(7);
-    rightTurn(7);
-    //move across and intake second bottom row
-    move(7);
-    rightTurn(7);
-    //intake row and go all the way to wall
-    move(7);
-    intake(0);
-    //move to scoring zone
-    rightTurn(7);
-    move(7);
-    //angler
-    anglerShift(1);
-    //move back from stack
-    move(-7);
-    anglerShift(0);
-    */
 }
 
 void skills()
 {
     
-    driveMove(90);
-    pros::delay(5000);
-    driveMove(-90);
+    driveMove(-1080);
+    driveMove(1080);
 }
 
-void test()
+void push()
 {
-    flip();
-    /*driveMove(1080);
-    pros::delay(5000);
-    driveMove(1080);*/
+    driveMove(-1080);
+    driveMove(1080);
 }
 
 void autonomous() 
@@ -154,9 +119,9 @@ void autonomous()
        break;
        case 5: skills();
        break;
-       case 6: test();
+       case 6: push();
        break;
-       default: test();
+       default: push();
        break;
    }
 }

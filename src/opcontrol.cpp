@@ -31,7 +31,7 @@ pros::Motor drive[4]
 	frontright_mtr
 };
 pros::Motor angler(9);
-pros::Motor lift(8);
+pros::Motor lift(8, pros::E_MOTOR_GEARSET_36);
 pros::Motor left_intake(1);
 pros::Motor right_intake(2);
 
@@ -95,97 +95,65 @@ void move(int destination)
 
 void rightTurn(int turn)
 {
-	frontright_mtr.move_relative(-turn, -75);
-	backright_mtr.move_relative(-turn, -75);
+	frontright_mtr.move_relative(turn, -75);
+	backright_mtr.move_relative(turn, -75);
 	frontleft_mtr.move_relative(turn, 75);
 	backright_mtr.move_relative(turn, 75);
 }
 
 void leftTurn(int turn)
 {
-	frontright_mtr.move_relative(turn, 75);
-	backright_mtr.move_relative(turn, 75);
+	frontright_mtr.move_relative(-turn, 75);
+	backright_mtr.move_relative(-turn, 75);
 	frontleft_mtr.move_relative(-turn, -75);
 	backright_mtr.move_relative(-turn, -75);
-}
-
-void anglerShift(int set) //0 for intaking, 1 for stacking
-{
-	if(set == 0)
-	{
-		angler.move_absolute(0, 80);
-	}
-	else if(set == 1)
-	{
-		angler.move_absolute(600, 80);
-	}
-}
-
-void intake(int set)
-{
-	if(set == 1)
-	{
-		left_intake = -70;
-		right_intake = 70;
-	}
-	else if(set == 0)
-	{
-		left_intake = 0;
-		right_intake = 0;
-	}
-	else if(set == -1)
-	{
-		left_intake = -40;
-		right_intake = 40;
-	}
 }
 
 void driveMove(int dist)
 {
 	backleft_mtr.move_relative(dist, 90);
-	backright_mtr.move_relative(dist, 90);
-	frontleft_mtr.move_relative(-dist, 90);
+	backright_mtr.move_relative(-dist, 90);
+	frontleft_mtr.move_relative(dist, 90);
 	frontright_mtr.move_relative(-dist, 90);
-}
-
-void flip()
-{
-	angler.move_absolute(1195, 65);
-	while (angler.get_position() < 1193) 
+	if(dist < 0)
 	{
-    pros::delay(2);
-  	}
-	pros::delay(500);
-	angler.move_absolute(100, -65);
-	while (angler.get_position() > 101) 
-	{
-    pros::delay(2);
-  	}
-	pros::delay(500);
-	//lift.move_absolute(720, 127);
-}
-
-/*void brake_hold(pros::Motor motor)
-{
-	double pos = motor.get_position();
-	int pow = 0;
-	pros::lcd::set_text(6, to_string(pos));
-	pros::delay(100);
-	while(motor.get_position() != pos && motor.get_position() < pos && pow < 50)
-	{
-		pros::lcd::set_text(5, "Motor pos = " + to_string(motor.get_position()));
-		pros::lcd::set_text(6, "Pos = " + to_string(pos));
-		pos = motor.get_position();
-		pow = pow + 1;
-		pros::lcd::set_text(7, to_string(pow));
-		motor = pow;
-		pros::delay(100);
+		while(backleft_mtr.get_position() > (dist + 2))
+		{
+			pros::delay(2);
+		}
 	}
-}*/
-	
+	if(dist > 0)
+	{
+		while(backleft_mtr.get_position() < (dist - 2))
+		{
+			pros::delay(2);
+		}
+	}
+	pros::delay(250);
+}
 
-
-bool xPressed = false;
+void driveMove(int dist, int speed)
+{
+	backleft_mtr.move_relative(dist, speed);
+	backright_mtr.move_relative(-dist, speed);
+	frontleft_mtr.move_relative(dist, speed);
+	frontright_mtr.move_relative(-dist, speed);
+	if(dist < 0)
+	{
+		while(backleft_mtr.get_position() > (dist + 2))
+		{
+			pros::delay(2);
+		}
+	}
+	if(dist > 0)
+	{
+		while(backleft_mtr.get_position() < (dist - 2))
+		{
+			pros::delay(2);
+		}
+	}
+	pros::delay(250);
+}
 
 //DRIVER CONTROL
 void opcontrol() {
@@ -221,7 +189,7 @@ void opcontrol() {
 		//LIFT
 		if(master.get_digital(DIGITAL_B))
 		{
-			lift = -75;
+			lift = -127;
 		}
 		else if(master.get_digital(DIGITAL_Y))
 		{
@@ -271,9 +239,11 @@ void opcontrol() {
 			right_intake = 0;
 		}
 
-		//flip
+		//testing auton on x
 		/*if(x == 1)
 		{
+			driveMove(-1080);
+    		driveMove(1080);
 			flip();
 		}*/
 		pros::delay(20);
@@ -285,8 +255,8 @@ void opcontrol() {
 		backright_mtr = 50;
 		frontleft_mtr = -50;
 		frontright_mtr = 50;
-		left_intake = -80;
-		right_intake = 80;
+		left_intake = -85;
+		right_intake = 85;
 	}
 }
 }

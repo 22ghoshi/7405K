@@ -15,12 +15,12 @@ std::vector<string> autonNames{
 	"topBlue",
 	"botBlue",
 	"skills",
-	"test"
+	"push"
 };
 
 
 
-int autonselect = 5;
+int autonselect = 2;
 int totalautons = autonNames.size();
 
 
@@ -60,7 +60,7 @@ void initialize() {
 	pros::lcd::initialize();
 	pros::delay(500);
 	pros::lcd::set_text(1, "Select Auton Below");
-	pros::lcd::set_text(2, "[NONE]");
+	pros::lcd::set_text(2, autonNames[autonselect - 1] + " ");
 
 	
 
