@@ -156,16 +156,41 @@ void driveMove(int dist, int speed)
 }
 
 //DRIVER CONTROL
+int left1;
+int right1;
 void opcontrol() {
 
 
 	while (true) {
 		
-	int left = master.get_analog(ANALOG_RIGHT_X);
-	int right = -1 *  master.get_analog(ANALOG_LEFT_Y);
+	int left = master.get_analog(ANALOG_LEFT_Y);
+	int right = master.get_analog(ANALOG_RIGHT_X);
 	//controller dampening
-	int left1 = (int) std::round(127.0 * std::pow((double) left / 127, (double) 11 / 7));
-	int right1 = (int) std::round(127.0 * std::pow((double) right / 127, (double) 11 / 7));
+	if (left < 0)
+	{
+		left1 = -127.0 * std::pow((double) (-1 * left) / 127, (double) 11 / 7);
+	}
+	else if(left > 0)
+	{
+		left1 = 127.0 * std::pow((double) left / 127, (double) 11 / 7);
+	}
+	else
+	{
+		left1 = 0;
+	}
+
+	if (right < 0)
+	{
+		right1 = -127.0 * std::pow((double) (-1 * right) / 127, (double) 11 / 7);
+	}
+	else if(right > 0)
+	{
+		right1 = 127.0 * std::pow((double) right / 127, (double) 11 / 7);
+	}
+	else
+	{
+		right1 = 0;
+	}
 	int x = master.get_digital(DIGITAL_X);
 	int a  = master.get_digital(DIGITAL_A);
 
@@ -173,36 +198,53 @@ void opcontrol() {
 	
 
 	//normal drive mode, normal controls
-	if(a == 0)
-	{
-		pros::lcd::set_text(4, "DRIVE");
+	
 		//DRIVE
 		//ARCADE DRIVE
-		backleft_mtr = (0.9) * (left - right);
-		backright_mtr = (0.9) * (left + right);
-		frontleft_mtr = (0.9) * (left - right);
-		frontright_mtr =  (0.9) * (left + right);
-		
-		pros::lcd::set_text(5, to_string(angler.get_position()));
-
+		if(a == 0)
+		{
+			if((left1 > -10 && left1 < 10) && (right1 > -10 && right1 < 10))
+			{
+				backleft_mtr = 0;
+				backright_mtr = 0;
+				frontleft_mtr = 0;
+				frontright_mtr = 0;
+				backleft_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+				backright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+				frontleft_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+				frontright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+			}
+			else
+			{
+				backleft_mtr = (left1 + right1);
+				backright_mtr = -1 * (left1 - right1);
+				frontleft_mtr = (left1 + right1);
+				frontright_mtr =  -1 * (left1 - right1);
+			}
+		}
+		else if(a == 1)
+		{
+			backleft_mtr = -50;
+			backright_mtr = 50;
+			frontleft_mtr = -50;
+			frontright_mtr = 50;
+		}
+			
+		pros::lcd::print(5, "%d", backleft_mtr.get_position());
 
 		//LIFT
 		if(master.get_digital(DIGITAL_B))
 		{
-			lift = -127;
+			lift = -100;
 		}
-		else if(master.get_digital(DIGITAL_Y))
+		else if((master.get_digital(DIGITAL_Y)) || (x == 1))
 		{
-			/*if(angler.get_position() < 720)
-			{
-				angler.move_absolute(720, 80);
-			}*/
 			lift = 127;
 		}
 		else
 		{
 			lift.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD); //doesn't work?
-			lift = 0; //gives motor so little power that it can't actually move the lift
+			lift = 0;
 		}
 
 		//ANGLER
@@ -213,6 +255,10 @@ void opcontrol() {
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 		{
 			angler = -55;
+		}
+		else if((x == 1) && (angler.get_position() < 1100))
+		{
+			angler = 70;
 		}
 		else
 		{
@@ -231,6 +277,11 @@ void opcontrol() {
 			left_intake = -40;
 			right_intake = 40;
 		}
+		else if(a == 1)
+		{
+			left_intake = -85;
+			right_intake = 85;
+		}
 		else
 		{
 			left_intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
@@ -242,21 +293,8 @@ void opcontrol() {
 		//testing auton on x
 		/*if(x == 1)
 		{
-			driveMove(-1080);
-    		driveMove(1080);
-			flip();
+			autonomous();
 		}*/
 		pros::delay(20);
-	}
-
-	else if (a == 1)
-	{
-		backleft_mtr = -50;
-		backright_mtr = 50;
-		frontleft_mtr = -50;
-		frontright_mtr = 50;
-		left_intake = -85;
-		right_intake = 85;
-	}
 }
 }
