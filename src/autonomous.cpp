@@ -24,7 +24,7 @@ void intake(int set)
         left_intake = 0;
         right_intake = 0; 
     }
-    else if(set ==--1)
+    else if(set == -1)
     {
         left_intake = -40;
         right_intake = 40;
