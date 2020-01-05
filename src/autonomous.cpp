@@ -4,32 +4,7 @@
 
 using namespace std;
 
-extern pros::Motor left_intake;
-extern pros::Motor right_intake;
-extern pros::Motor angler;
-extern pros::Motor backleft_mtr;
-extern pros::Motor backright_mtr;
-extern pros::Motor frontleft_mtr;
-extern pros::Motor frontright_mtr;
 
-void intake(int set)
-{
-    if(set == 1)
-    {
-        left_intake = 127;
-        right_intake = -127; 
-    }
-    else if(set == 0)
-    {
-        left_intake = 0;
-        right_intake = 0; 
-    }
-    else if(set == -1)
-    {
-        left_intake = -40;
-        right_intake = 40;
-    }
-}
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -45,12 +20,14 @@ void intake(int set)
 
 extern int autonselect;
 //functions for autons from opcontrol
-double pid(double error);
-void move();
+void move(int destination);
 void rightTurn(int turn);
 void leftTurn(int turn);
 void driveMove(int dist);
 void driveMove(int dist, int speed);
+void intake(int set);
+void anglerMove(int dist);
+void backout(int time);
 
 void topRed()
 {
@@ -76,29 +53,13 @@ void botRed()
 
     //move to corner and angle stack vertical
     driveMove(500);
-    angler.move_absolute(1195, 55);
-    while(angler.get_position() < 1193)
-    {
-        pros::delay(2);
-    }
+    anglerMove(1195);
     intake(-1);
     pros::delay(500);
     intake(0);
 
     //back away
-    backleft_mtr = -50;
-	backright_mtr = 50;
-	frontleft_mtr = -50;
-	frontright_mtr = 50;
-    left_intake = -85;
-    right_intake = 85;
-    pros::delay(500);
-    backleft_mtr = 0;
-	backright_mtr = 0;
-	frontleft_mtr = 0;
-	frontright_mtr = 0;
-    left_intake = 0;
-    right_intake = 0;
+    backout(1000);
 }
 
 void topBlue()
@@ -138,35 +99,21 @@ void botBlue()
 
     //score
     driveMove(500);
-    angler.move_absolute(1195, 55);
-    while(angler.get_position() < 1193)
-    {
-        pros::delay(2);
-    }
+    anglerMove(1195);
     intake(-1);
     pros::delay(500);
     intake(0);
 
     //back away
-    backleft_mtr = -50;
-	backright_mtr = 50;
-	frontleft_mtr = -50;
-	frontright_mtr = 50;
-    left_intake = -85;
-    right_intake = 85;
-    pros::delay(500);
-    backleft_mtr = 0;
-	backright_mtr = 0;
-	frontleft_mtr = 0;
-	frontright_mtr = 0;
-    left_intake = 0;
-    right_intake = 0;
+    backout(1000);
 }
 
-void skills()
+void test()
 {
-    driveMove(-1080);
-    driveMove(1080);
+    intake(1);
+    driveMove(540, 50);
+    intake(0);
+    opcontrol();
 }
 
 void push()
@@ -194,7 +141,7 @@ void autonomous()
        break;
        case 4: botBlue();
        break;
-       case 5: skills();
+       case 5: test();
        break;
        case 6: push();
        break;

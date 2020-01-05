@@ -20,7 +20,7 @@ std::vector<string> autonNames{
 
 
 
-int autonselect = 2;
+int autonselect = 5;
 int totalautons = autonNames.size();
 
 

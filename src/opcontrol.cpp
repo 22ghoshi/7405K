@@ -19,10 +19,10 @@ using namespace std;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-pros::Motor backleft_mtr(6);
-pros::Motor backright_mtr(4);
-pros::Motor frontleft_mtr(5);
-pros::Motor frontright_mtr(7);
+pros::Motor backleft_mtr(3);
+pros::Motor backright_mtr(1);
+pros::Motor frontleft_mtr(2);
+pros::Motor frontright_mtr(4);
 pros::Motor leftDrive[2]
 {
 	backleft_mtr,
@@ -33,10 +33,10 @@ pros::Motor rightDrive[2]
 	backright_mtr,
 	frontright_mtr
 };
-pros::Motor angler(9, pros::E_MOTOR_GEARSET_36);
-pros::Motor lift(8, pros::E_MOTOR_GEARSET_36);
-pros::Motor left_intake(1);
-pros::Motor right_intake(2);
+pros::Motor angler(7, pros::E_MOTOR_GEARSET_36);
+pros::Motor lift(5, pros::E_MOTOR_GEARSET_36);
+pros::Motor left_intake(20, pros::E_MOTOR_GEARSET_36);
+pros::Motor right_intake(19, pros::E_MOTOR_GEARSET_36);
 
 //AUTON FUNCTIONS
 double integral = 0;
@@ -99,36 +99,48 @@ void move(int destination)
 
 void rightTurn(int turn)
 {
-	frontright_mtr.move_relative(turn, -75);
-	backright_mtr.move_relative(turn, -75);
-	frontleft_mtr.move_relative(turn, 75);
-	backright_mtr.move_relative(turn, 75);
+	backleft_mtr.tare_position();
+	backright_mtr.tare_position();
+	frontleft_mtr.tare_position();
+	frontright_mtr.tare_position();
+	frontright_mtr.move_absolute(turn, -75);
+	backright_mtr.move_absolute(turn, -75);
+	frontleft_mtr.move_absolute(turn, 75);
+	backright_mtr.move_absolute(turn, 75);
 }
 
 void leftTurn(int turn)
 {
-	frontright_mtr.move_relative(-turn, 75);
-	backright_mtr.move_relative(-turn, 75);
-	frontleft_mtr.move_relative(-turn, -75);
-	backright_mtr.move_relative(-turn, -75);
+	backleft_mtr.tare_position();
+	backright_mtr.tare_position();
+	frontleft_mtr.tare_position();
+	frontright_mtr.tare_position();
+	frontright_mtr.move_absolute(-turn, 75);
+	backright_mtr.move_absolute(-turn, 75);
+	frontleft_mtr.move_absolute(-turn, -75);
+	backright_mtr.move_absolute(-turn, -75);
 }
 
 void driveMove(int dist)
 {
-	backleft_mtr.move_relative(dist, 90);
-	backright_mtr.move_relative(-dist, 90);
-	frontleft_mtr.move_relative(dist, 90);
-	frontright_mtr.move_relative(-dist, 90);
+	backleft_mtr.tare_position();
+	backright_mtr.tare_position();
+	frontleft_mtr.tare_position();
+	frontright_mtr.tare_position();
+	backleft_mtr.move_absolute(dist, 90);
+	backright_mtr.move_absolute(-dist, 90);
+	frontleft_mtr.move_absolute(dist, 90);
+	frontright_mtr.move_absolute(-dist, 90);
 	if(dist < 0)
 	{
-		while(backleft_mtr.get_position() > (dist + 2))
+		while(backleft_mtr.get_position() > (dist + 10))
 		{
 			pros::delay(2);
 		}
 	}
 	if(dist > 0)
 	{
-		while(backleft_mtr.get_position() < (dist - 2))
+		while(backleft_mtr.get_position() < (dist - 10))
 		{
 			pros::delay(2);
 		}
@@ -138,25 +150,85 @@ void driveMove(int dist)
 
 void driveMove(int dist, int speed)
 {
-	backleft_mtr.move_relative(dist, speed);
-	backright_mtr.move_relative(-dist, speed);
-	frontleft_mtr.move_relative(dist, speed);
-	frontright_mtr.move_relative(-dist, speed);
+	backleft_mtr.tare_position();
+	backright_mtr.tare_position();
+	frontleft_mtr.tare_position();
+	frontright_mtr.tare_position();
+	backleft_mtr.move_absolute(dist, speed);
+	backright_mtr.move_absolute(-dist, speed);
+	frontleft_mtr.move_absolute(dist, speed);
+	frontright_mtr.move_absolute(-dist, speed);
 	if(dist < 0)
 	{
-		while(backleft_mtr.get_position() > (dist + 2))
+		while(backleft_mtr.get_position() > (dist + 10))
 		{
 			pros::delay(2);
 		}
 	}
 	if(dist > 0)
 	{
-		while(backleft_mtr.get_position() < (dist - 2))
+		while(backleft_mtr.get_position() < (dist - 10))
 		{
 			pros::delay(2);
 		}
 	}
 	pros::delay(250);
+}
+
+void intake(int set)
+{
+    if(set == 1)
+    {
+        left_intake = 127;
+        right_intake = -127; 
+    }
+    else if(set == 0)
+    {
+        left_intake = 0;
+        right_intake = 0; 
+    }
+    else if(set == -1)
+    {
+        left_intake = -40;
+        right_intake = 40;
+    }
+}
+
+void anglerMove(int dist)
+{
+	angler.move_absolute(dist, 70);
+	if(dist < 0)
+	{
+		while(angler.get_position() > (dist + 10))
+		{
+			pros::delay(2);
+		}
+	}
+	if(dist > 0)
+	{
+		while(angler.get_position() < (dist - 10))
+		{
+			pros::delay(2);
+		}
+	}
+	pros::delay(250);
+}
+
+void backout(int time)
+{
+	backleft_mtr = -55;
+	backright_mtr = 55;
+	frontleft_mtr = -55;
+	frontright_mtr = 55;
+    left_intake = -100;
+    right_intake = 100;
+    pros::delay(time);
+    backleft_mtr = 0;
+	backright_mtr = 0;
+	frontleft_mtr = 0;
+	frontright_mtr = 0;
+    left_intake = 0;
+    right_intake = 0;
 }
 
 //DRIVER CONTROL
@@ -170,7 +242,7 @@ void opcontrol() {
 	int left = master.get_analog(ANALOG_LEFT_Y);
 	int right = master.get_analog(ANALOG_RIGHT_X);
 	//controller dampening
-	if (left < -10)
+	if(left < -10)
 	{
 		left1 = -127.0 * std::pow((double) (-1 * left) / 127, (double) 11 / 7);
 	}
@@ -183,7 +255,7 @@ void opcontrol() {
 		left1 = 0;
 	}
 
-	if (right < -10)
+	if(right < -10)
 	{
 		right1 = -127.0 * std::pow((double) (-1 * right) / 127, (double) 11 / 7);
 	}
@@ -211,34 +283,20 @@ void opcontrol() {
 		//ARCADE DRIVE
 		if(a == 0)
 		{
-			/*if((left1 > -10 && left1 < 10) && (right1 > -10 && right1 < 10))
-			{
-				backleft_mtr = 0;
-				backright_mtr = 0;
-				frontleft_mtr = 0;
-				frontright_mtr = 0;
-				backleft_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-				backright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-				frontleft_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-				frontright_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			}
-			else
-			{*/
-				backleft_mtr = (0.9) * (left1 + right1);
-				backright_mtr = (-0.9) * (left1 - right1);
-				frontleft_mtr = (0.9) * (left1 + right1);
-				frontright_mtr =  (-0.9) * (left1 - right1);
-			//}
+			backleft_mtr = (0.9) * (left1 + right1);
+			backright_mtr = (-0.9) * (left1 - right1);
+			frontleft_mtr = (0.9) * (left1 + right1);
+			frontright_mtr =  (-0.9) * (left1 - right1);
 		}
 		else if(a == 1)
 		{
-			backleft_mtr = -50;
-			backright_mtr = 50;
-			frontleft_mtr = -50;
-			frontright_mtr = 50;
+			backleft_mtr = -55;
+			backright_mtr = 55;
+			frontleft_mtr = -55;
+			frontright_mtr = 55;
 		}
 			
-		pros::lcd::set_text(5, std::to_string(lift.get_position()));
+		pros::lcd::set_text(5, std::to_string(angler.get_position()));
 		pros::lcd::set_text(6, std::to_string(angler.get_position()));
 
 		//LIFT
@@ -259,11 +317,11 @@ void opcontrol() {
 		//ANGLER
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
 		{
-			angler = 85;
+			angler = 95;
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
 		{
-			angler = -100;
+			angler = -127;
 		}
 		else
 		{
@@ -284,8 +342,8 @@ void opcontrol() {
 		}
 		else if(a == 1)
 		{
-			left_intake = -85;
-			right_intake = 85;
+			left_intake = -100;
+			right_intake = 100;
 		}
 		else
 		{
@@ -296,10 +354,10 @@ void opcontrol() {
 		}
 
 		//testing auton on x
-		/*if(x == 1)
+		if(x == 1)
 		{
 			autonomous();
-		}*/
+		}
 
 		if(down == 1)
 		{
