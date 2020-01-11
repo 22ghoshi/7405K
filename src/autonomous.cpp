@@ -23,43 +23,50 @@ extern int autonselect;
 void move(int destination);
 void rightTurn(int turn);
 void leftTurn(int turn);
-void driveMove(int dist);
 void driveMove(int dist, int speed);
+void driveVel(int dist, int speed);
+void deploy();
 void intake(int set);
 void anglerMove(int dist);
+void liftMove(int dist);
 void backout(int time);
 
 void topRed()
 {
+    deploy();
+
     
 }
 
 void botRed()
 {
-    //place bot in front of four row, put preload in front of it
+    //place bot in front of 3 row
     //deploy
-    intake(-1);
-    pros::delay(1250);
-    intake(0);
+    deploy();
+    //liftMove(-750);
 
-    //intake row of five (w/ preload)
+    //start
+    //intake row of four
     intake(1);
-    driveMove(2500, 60);
+    driveMove(2100, 50);
+    pros::delay(700);
     intake(0);
 
-    //move back and turn to face corner
-    driveMove(-1750, -100);
-    rightTurn(1500);
+    //drive to corner
+    driveMove(-1150, 100);
+    rightTurn(900);
+    driveVel(1500, 80);
+    pros::delay(1000);
+    driveMove(-100, 50);
 
-    //move to corner and angle stack vertical
-    driveMove(500);
-    anglerMove(1195);
+    //stack
     intake(-1);
-    pros::delay(500);
+    anglerMove(5300);
     intake(0);
+    driveMove(50, 50);
 
     //back away
-    backout(1000);
+    backout(600);
 }
 
 void topBlue()
@@ -69,57 +76,32 @@ void topBlue()
 
 void botBlue()
 {
-    //place bot in front of 3 row
-    //deploy
-    intake(-1);
-    pros::delay(1250);
-    intake(0);
-
-    //intake row
     intake(1);
-    driveMove(1750);
-    driveMove(-200);
-    driveMove(400);
+    driveMove(2850, 50);
+    pros::delay(800);
     intake(0);
-
-    //angle towards right, move back, align with four row
-    rightTurn(400);
-    driveMove(-3000);
-    leftTurn(400);
-
-    //intake row of four
-    intake(1);
-    driveMove(2250);
-    intake(0);
-
-    //back up and move to score
-    driveMove(-2000);
-    leftTurn(1500);
-    driveMove(500);
-
-    //score
-    driveMove(500);
-    anglerMove(1195);
+    driveMove(-1800, 85);
+    leftTurn(650);
+    driveVel(1500, 80);
+    pros::delay(1000);
+    driveMove(-100, 50);
     intake(-1);
-    pros::delay(500);
+    anglerMove(5300);
     intake(0);
-
-    //back away
-    backout(1000);
+    driveMove(50, 50);
+    backout(600);
 }
 
 void test()
 {
-    intake(1);
-    driveMove(540, 50);
-    intake(0);
-    opcontrol();
+    deploy();
 }
 
 void push()
 {
-    driveMove(-1080);
-    driveMove(1080);
+    driveMove(-1080, 90);
+    driveMove(1080, 90);
+    deploy();
 }
 
 void autonomous() 

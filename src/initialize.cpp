@@ -14,13 +14,13 @@ std::vector<string> autonNames{
 	"botRed",
 	"topBlue",
 	"botBlue",
-	"skills",
+	"test",
 	"push"
 };
 
 
 
-int autonselect = 5;
+int autonselect = 2;
 int totalautons = autonNames.size();
 
 
@@ -34,6 +34,7 @@ int totalautons = autonNames.size();
 void on_center_button() 
 {
 	pros::lcd::set_text(3, "Running Auton " + autonNames[autonselect - 1] + "...");
+	//pros::lcd::set_text(6, std::to_string(angler.get_position()));
 	pros::delay(1000);
 }
 
