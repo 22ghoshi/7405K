@@ -1,15 +1,13 @@
 #include "main.h"
+#include "initialize.hpp"
+#include "autonomous.hpp"
+#include "Robot.hpp"
 #include <vector>
-#include<string>
-
-using namespace std;
-
-
-
-
+#include <string>
+#include <memory>
 
 //vector of autons
-std::vector<string> autonNames{
+std::vector<std::string> autonNames {
 	"topRed",
 	"botRed",
 	"topBlue",
@@ -19,11 +17,8 @@ std::vector<string> autonNames{
 };
 
 
-
-int autonselect = 2;
+autonSelect autonselect = autonSelect::push;
 int totalautons = autonNames.size();
-
-
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -31,25 +26,26 @@ int totalautons = autonNames.size();
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
+
 void on_center_button() 
 {
-	pros::lcd::set_text(3, "Running Auton " + autonNames[autonselect - 1] + "...");
+	pros::lcd::set_text(3, "Running Auton " + autonNames[(int)autonselect - 1] + "...");
 	//pros::lcd::set_text(6, std::to_string(angler.get_position()));
 	pros::delay(1000);
 }
 
 void on_right_button()
 {
-	if (autonselect == totalautons)
+	if ((int)autonselect == totalautons)
 	{
-		autonselect = 0;
+		autonselect = autonSelect::push;
 	}
 	
 	
-	autonselect++;
+	autonselect = (autonSelect)((int)autonselect + 1);
 	
 	
-	pros::lcd::set_text(2, autonNames[autonselect - 1]);
+	pros::lcd::set_text(2, autonNames[(int)autonselect - 1]);
 }
 
 void on_left_button()
@@ -59,15 +55,17 @@ void on_left_button()
 
 void initialize() {
 	pros::lcd::initialize();
-	pros::delay(500);
+	pros::delay(20);
 	pros::lcd::set_text(1, "Select Auton Below");
-	pros::lcd::set_text(2, autonNames[autonselect - 1] + " ");
-
-	
-
+	pros::lcd::set_text(2, autonNames[(int)autonselect - 1] + " ");
 	pros::lcd::register_btn1_cb(on_center_button);
 	pros::lcd::register_btn0_cb(on_left_button);
 	pros::lcd::register_btn2_cb(on_right_button);
+	
+	// Robot Class and PID init
+	Robot::Instance();
+	sRobot->startTask("Angler PID", Robot::anglerPID);
+	sRobot->startTask("Lift PID", Robot::liftPID);
 }
 
 
