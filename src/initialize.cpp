@@ -1,23 +1,18 @@
-#include "main.h"
 #include "initialize.hpp"
-#include "autonomous.hpp"
-#include "Robot.hpp"
-#include <vector>
-#include <string>
+
 #include <memory>
+#include <string>
+#include <vector>
 
-//vector of autons
-std::vector<std::string> autonNames {
-	"topRed",
-	"botRed",
-	"topBlue",
-	"botBlue",
-	"test",
-	"push"
-};
+#include "Robot.hpp"
+#include "autonomous.hpp"
+#include "main.h"
 
 
-autonSelect autonselect = autonSelect::push;
+// vector of autons
+std::vector<std::string> autonNames{"topRed", "botRed", "topBlue", "botBlue", "test", "push"};
+
+autonSelect autonselect = autonSelect::test;
 int totalautons = autonNames.size();
 
 /**
@@ -27,31 +22,23 @@ int totalautons = autonNames.size();
  * to keep execution time for this mode under a few seconds.
  */
 
-void on_center_button() 
-{
+void on_center_button() {
 	pros::lcd::set_text(3, "Running Auton " + autonNames[(int)autonselect - 1] + "...");
-	//pros::lcd::set_text(6, std::to_string(angler.get_position()));
+	// pros::lcd::set_text(6, std::to_string(angler.get_position()));
 	pros::delay(1000);
 }
 
-void on_right_button()
-{
-	if ((int)autonselect == totalautons)
-	{
-		autonselect = autonSelect::push;
+void on_right_button() {
+	if ((int)autonselect == totalautons) {
+		autonselect = autonSelect::topRed;
 	}
-	
-	
+
 	autonselect = (autonSelect)((int)autonselect + 1);
-	
-	
+
 	pros::lcd::set_text(2, autonNames[(int)autonselect - 1]);
 }
 
-void on_left_button()
-{
-
-}
+void on_left_button() {}
 
 void initialize() {
 	pros::lcd::initialize();
@@ -61,14 +48,12 @@ void initialize() {
 	pros::lcd::register_btn1_cb(on_center_button);
 	pros::lcd::register_btn0_cb(on_left_button);
 	pros::lcd::register_btn2_cb(on_right_button);
-	
+
 	// Robot Class and PID init
 	Robot::Instance();
-	sRobot->startTask("Angler PID", Robot::anglerPID);
-	sRobot->startTask("Lift PID", Robot::liftPID);
+	// sRobot->startTask("Angler PID", Robot::anglerPID);
+	// sRobot->startTask("Lift PID", Robot::liftPID);
 }
-
-
 
 /**
  * Runs while the robot is in the disabled state of Field Management System or

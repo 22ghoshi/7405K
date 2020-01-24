@@ -1,5 +1,5 @@
 // #include "autonomous.hpp"
-// #include "initialize.hpp"
+ #include "initialize.hpp"
  #include "Robot.hpp"
  #include "main.h"
 // #include <vector>
@@ -17,14 +17,12 @@
 //  * from where it left off.
 //  */
 
-// void topRed()
-// {
+void topRed() {
     
 //     //work here
-// }
+}
 
-// void bottomRed()
-// {
+void bottomRed() {
 //     //place bot in front of 3 row
 //     //deploy
 //     deploy();
@@ -67,15 +65,13 @@
 
 //     //back away
 //     backout(600);
-// }
+}
 
-// void topBlue()
-// {
+void topBlue() {
 //     //and here
-// }
+}
 
-// void bottomBlue()
-// {
+void bottomBlue() {
 //     intake(1);
 //     sRobot->moveDist(2850);
 //     pros::delay(800);
@@ -90,67 +86,63 @@
 //     intake(0);
 //     sRobot->sRobot->moveDist(50, 50);
 //     backout(600);
-// }
+}
 
-// void test()
-// {
-//     deploy();
-// }
+void test() { //TODO botRed auton here
+    double startPos = sRobot->getMotor("BackLeft")->get_position();
+    sRobot->intakeOut();
+    pros::delay(1000);
+    sRobot->intakeIn();
+    sRobot->moveDist(2150, 0.2);
+    pros::delay(500);
+    sRobot->intakeStop();
+    sRobot->moveDist(-1500, 0.5);
+    sRobot->turn(100);
+    pros::delay(1000);
+    printf("finished %f\n", (sRobot->getMotor("BackLeft")->get_position() - startPos) - 450);
+}
 
-// void push()
-// {
-//     sRobot->sRobot->moveDist(-1080, 90);
-//     sRobot->sRobot->moveDist(1080, 90);
+void push() {
+//     sRobot->moveDist(-1080, 90);
+//     sRobot->moveDist(1080, 90);
 //     deploy();
-// }
+}
 
 // void backout() {
     
 // }
 
 
-// void autonomous() 
-// {
+void autonomous() {
 
-//     /*minimum  autons - 
-//     maximum scoring (skills)
-//     top red / bot red hoarding cubes
-//     top blue / bot blue hoarding cubes
-//     */
-//    pros::lcd::print(6, "%d", autonselect);
+    /*minimum  autons - 
+    maximum scoring (skills)
+    top red / bot red hoarding cubes
+    top blue / bot blue hoarding cubes
+    */
    
-//    switch(autonselect)
-//    {
-//        case autonSelect::topRed: 
-//         topRed();
-//         break;
-//        case autonSelect::botRed: 
-//         bottomRed();
-//         break;
-//        case autonSelect::topBlue: 
-//         topBlue();
-//         break;
-//        case autonSelect::botBlue: 
-//         bottomBlue();
-//         break;
-//        case autonSelect::test: 
-//         test();
-//         break;
-//        case autonSelect::push: 
-//         push();
-//         break;
-//        default:
-//         push();
-//         break;
-//    }
-// }
-
-void autonomous() { //TODO tune all pids here
-    double starting = sRobot->getMotor("BackLeft")->get_position();
-    sRobot->moveDist(600);
-    pros::delay(1000);
-    printf("finished %f\n", 600 - (sRobot->getMotor("BackLeft")->get_position() - starting));
-    // while(true) {
-    //     printf("%f\n", sRobot->getMotor("BackLeft")->get_position());
-    // }
+   switch(autonselect)
+   {
+       case autonSelect::topRed: 
+        topRed();
+        break;
+       case autonSelect::botRed: 
+        bottomRed();
+        break;
+       case autonSelect::topBlue: 
+        topBlue();
+        break;
+       case autonSelect::botBlue: 
+        bottomBlue();
+        break;
+       case autonSelect::test: 
+        test();
+        break;
+       case autonSelect::push: 
+        push();
+        break;
+       default:
+        push();
+        break;
+   }
 }
