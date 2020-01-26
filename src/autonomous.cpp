@@ -90,22 +90,35 @@ void bottomBlue() {
 
 void test() { //TODO botRed auton here
     double startPos = sRobot->getMotor("BackLeft")->get_position();
-    sRobot->intakeOut();
+    sRobot->intakeOut(-127);
     pros::delay(1000);
     sRobot->intakeIn();
-    sRobot->moveDist(2150, 0.2);
-    pros::delay(500);
-    sRobot->intakeStop();
-    sRobot->moveDist(-1500, 0.5);
-    sRobot->turn(100);
-    pros::delay(1000);
-    printf("finished %f\n", (sRobot->getMotor("BackLeft")->get_position() - startPos) - 450);
+    sRobot->moveDist(2150, 60);
+    // pros::delay(500);
+    // sRobot->intakeStop();
+    // sRobot->moveDist(-1600, 40);
+    // pros::delay(500);
+    // sRobot->turn(130);
+    // pros::delay(1000);
+    printf("finished %f\n", (sRobot->getMotor("BackLeft")->get_position() - startPos) - 2150);
 }
 
 void push() {
-//     sRobot->moveDist(-1080, 90);
-//     sRobot->moveDist(1080, 90);
-//     deploy();
+    sRobot->moveVel(-90);
+    pros::delay(750);
+    sRobot->moveVel(0);
+    pros::delay(750);
+    sRobot->moveDist(1500, 70);
+    sRobot->intakeOut(-127);
+    pros::delay(1000);
+    sRobot->intakeStop();
+    sRobot->anglerMove(2000);
+    pros::delay(100);
+    sRobot->liftMove(500);
+    pros::delay(100);
+    *(sRobot->getMotor("Lift")) = -127;
+    pros::delay(500);
+    *(sRobot->getMotor("Lift")) = 0;
 }
 
 // void backout() {
@@ -114,13 +127,6 @@ void push() {
 
 
 void autonomous() {
-
-    /*minimum  autons - 
-    maximum scoring (skills)
-    top red / bot red hoarding cubes
-    top blue / bot blue hoarding cubes
-    */
-   
    switch(autonselect)
    {
        case autonSelect::topRed: 

@@ -17,7 +17,7 @@ Robot::Robot() {
 	motors["Angler"] = std::make_unique<pros::Motor>(11);
 	motors["Lift"] = std::make_unique<pros::Motor>(5);
 	motors["LeftIntake"] = std::make_unique<pros::Motor>(10);
-	motors["RightIntake"] = std::make_unique<pros::Motor>(8, true);
+	motors["RightIntake"] = std::make_unique<pros::Motor>(9, true);
 
 	// Sensors Init
 	sensorAnalog["Angler Potentiometer"] = std::make_unique<pros::ADIAnalogIn>(1);
@@ -53,7 +53,7 @@ void Robot::moveDist(int dist, int limit) {
 	double accelSpeed = 0;
 
 	while (fabs(dist) - 5 > fabs(avgPos) || fabs(dist) + 5 < fabs(avgPos)) {
-		if (motors["BackLeft"]->get_actual_velocity() < 2 && time > 200) {
+		if (motors["BackLeft"]->get_actual_velocity() < 2 && time > 500) {
 			break;
 		}
 		leftPos = motors["BackLeft"]->get_position() - leftOffset;
@@ -67,7 +67,7 @@ void Robot::moveDist(int dist, int limit) {
 		prevErr = err;
 
 		double res = (kP * P) + (kI * I) + (kD * D);
-		if (res > limit) {
+		if ((res < 0 && res < limit) || (res > 0 && res > limit)) {
 			*motors["BackLeft"] = limit;
 			*motors["BackRight"] = limit;
 			*motors["FrontLeft"] = limit;
@@ -235,56 +235,73 @@ void Robot::anglerMove(int dist) {
 		D = err - prevErr;
 		prevErr = err;
 
-		*motors["Lift"] = (kP * P) + (kI * I) + (kD * D);
+		*motors["Angler"] = (kP * P) + (kI * I) + (kD * D);
 		time += 20;
 		pros::delay(20);
 	}
 	*motors["Angler"] = 0;
 }
 
-void Robot::tower(int tower) { //TODO make tower macros
-	double time = 0;
-	double kP = 0.2;
-	double kI = 0.0;
-	double kD = 0;
-	double P = 0, I = 0, D = 0;
-	double prevErr = sensorAnalog["Angler Potentiometer"]->get_value();
-	double pos = sensorAnalog["Angler Potentiometer"]->get_value();
-	while (time < 500) {
-		if (motors["Angler"]->get_actual_velocity() < 2 && time > 200) {
-			break;
-		}
-		pos = sensorAnalog["Angler Potentiometer"]->get_value();
-		double err = 2052 - pos;
-		P = err;
-		I += err;
-		D = err - prevErr;
-		prevErr = err;
-
-		*motors["Angler"] = (kP * P) + (kI * I) + (kD * D);
-		time += 40;
-		pros::delay(20);
+void Robot::tower(int tower) {
+	int height;
+	if (tower == 1) {
+		height = 1053;
+	} else if (tower == 2) {
+		height = 1520;
 	}
-	*motors["Angler"] = 0;
-	time = 0;
-	kP = 0.3;
-	kI = 0.0;
-	kD = 0.35;
-	P = 0, I = 0, D = 0;
-	prevErr = sensorAnalog["Lift Potentiometer"]->get_value();
-	pos = sensorAnalog["Lift Potentiometer"]->get_value();
-	while (pos < 1053) {
+
+	if (sensorAnalog["Angler Potentiometer"]->get_value() < 1800) {
+		*motors["Angler"] = 127;
+	}
+	pros::delay(350);
+	double time = 0;
+	double kP = 0.3;
+	double kI = 0.0;
+	double kD = 0.35;
+	double P = 0, I = 0, D = 0;
+	double prevErr = sensorAnalog["Lift Potentiometer"]->get_value();
+	double pos = sensorAnalog["Lift Potentiometer"]->get_value();
+	while (pos < (height - 5)) {
 		if (motors["Lift"]->get_actual_velocity() < 2 && time > 200) {
 			break;
 		}
+
+		if (sensorAnalog["Angler Potentiometer"]->get_value() < 2000) {
+			*motors["Angler"] = 127;
+		} else {
+			*motors["Angler"] = 0;
+		}
 		pos = sensorAnalog["Lift Potentiometer"]->get_value();
-		double err = 1063 - pos;
+		double err = height - pos;
 		P = err;
 		I += err;
 		D = err - prevErr;
 		prevErr = err;
 
 		*motors["Lift"] = (kP * P) + (kI * I) + (kD * D);
+		time += 20;
+		pros::delay(20);
+	}
+	*motors["Angler"] = 0;
+	*motors["Lift"] = 0;
+}
+
+void Robot::down() {
+	double time = 0;
+	while (sensorAnalog["Lift Potentiometer"]->get_value() > 50) {
+		if (motors["Lift"]->get_actual_velocity() < 2 && time > 500) {
+			break;
+		}
+		*motors["Lift"] = -127;
+		time += 20;
+		pros::delay(20);
+	}
+	time = 0;
+	while (sensorAnalog["Angler Potentiometer"]->get_value() > 1170) {
+		if (motors["Angler"]->get_actual_velocity() < 2 && time > 200) {
+			break;
+		}
+		*motors["Angler"] = -127;
 		time += 20;
 		pros::delay(20);
 	}
@@ -295,9 +312,9 @@ void Robot::intakeIn() {
 	*motors["RightIntake"] = 127;
 }
 
-void Robot::intakeOut() {
-	*motors["LeftIntake"] = -70;
-	*motors["RightIntake"] = -70;
+void Robot::intakeOut(int speed) {
+	*motors["LeftIntake"] = speed;
+	*motors["RightIntake"] = speed;
 }
 
 void Robot::intakeStop() {

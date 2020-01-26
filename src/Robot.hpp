@@ -39,8 +39,9 @@ class Robot {
 	void liftMove(int dist);
 	void anglerMove(int dist);
 	void tower(int tower);
+	void down();
 	void intakeIn();
-	void intakeOut();
+	void intakeOut(int speed);
 	void intakeStop();
 
 	void startTask(std::string name, void (*func)(void*), void* params = nullptr);

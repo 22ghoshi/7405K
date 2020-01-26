@@ -31,7 +31,7 @@ void opcontrol() {
 		int right = /*127*std::pow((*/ master.get_analog(ANALOG_RIGHT_X) /*/127), (11/7))*0.9*/;
 
 		if (master.get_digital(DIGITAL_A)) {
-			sRobot->moveVel(-30);
+			sRobot->moveVel(-60);
 		} else {
 			sRobot->arcade(left, right);
 		}
@@ -40,9 +40,8 @@ void opcontrol() {
 		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
 			sRobot->intakeIn();
 		} else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2) || master.get_digital(DIGITAL_A)) {
-			sRobot->intakeOut();
-		}
-		else {
+			sRobot->intakeOut(-127);
+		} else {
 			sRobot->intakeStop();
 		}
 
@@ -50,10 +49,10 @@ void opcontrol() {
 
 		// ANGLER
 		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-			if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 2800) {
+			if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 2400) {
 				*(sRobot->getMotor("Angler")) = 127;
 			} else if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 3900) {
-				*(sRobot->getMotor("Angler")) = 70;
+				*(sRobot->getMotor("Angler")) = 75;
 			}
 			else {
 				*(sRobot->getMotor("Angler")) = 0;
@@ -70,21 +69,25 @@ void opcontrol() {
 		if (master.get_digital(DIGITAL_Y)) {
 			*(sRobot->getMotor("Lift")) = 127;
 			master.set_text(0, 0, "lift   up");
-		} else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && (sRobot->getAnalogSensor("Lift Potentiometer")->get_value() > 1250)) {
-			*(sRobot->getMotor("Lift")) = 70;
 		} else if (master.get_digital(DIGITAL_B)) {
 			*(sRobot->getMotor("Lift")) = -127;
 			master.set_text(0, 0, "lift down");
 		} else if (master.get_digital(DIGITAL_A)) {
-			*(sRobot->getMotor("Lift")) = -40;
+			*(sRobot->getMotor("Lift")) = -30;
 		} else {
 			*(sRobot->getMotor("Lift")) = 0;
 			sRobot->getMotor("Lift")->set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 		}
 
 		//TODO tower macros
-		if (master.get_digital(DIGITAL_UP)) {
+		if (master.get_digital(DIGITAL_RIGHT)) {
 			sRobot->tower(1);
+		}
+		if (master.get_digital(DIGITAL_UP)) {
+			sRobot->tower(2);
+		}
+		if (master.get_digital(DIGITAL_DOWN)) {
+			sRobot->down();
 		}
 
 		pros::delay(20);
