@@ -19,112 +19,40 @@
 
 void topRed() {
     
-//     //work here
 }
 
-void bottomRed() {
-//     //place bot in front of 3 row
-//     //deploy
-//     deploy();
-//     //liftsRobot->moveDist(-750);
-
-
-//     //for 8 cube testing later
-//     /*
-
-//     intake(1);
-//     sRobot->sRobot->moveDist(2100);
-//     sRobot->sRobot->moveDist(-300);
-//     sRobot->sRobot->moveDist(300);
-//     leftTurn(300);
-//     sRobot->sRobot->moveDist(-3000);
-//     rightTurn(300);
-//     //continue on
-
-//     */
-
-//     //start for now
-//     //intake row of four
-//     intake(1);
-//     sRobot->sRobot->moveDist(2100, 50);
-    
-//     intake(0);
-
-//     //drive to corner
-//     sRobot->sRobot->moveDist(-1150, 100);
-//     rightTurn(900);
-//     driveVel(1500, 80);
-//     pros::delay(1000);
-//     sRobot->sRobot->moveDist(-100, 50);
-
-//     //stack
-//     intake(-1);
-//     anglersRobot->moveDist(3600);
-//     intake(0);
-//     sRobot->moveDist(50, 50);
-
-//     //back away
-//     backout(600);
-}
-
-void topBlue() {
-//     //and here
-}
-
-void bottomBlue() {
-//     intake(1);
-//     sRobot->moveDist(2850);
-//     pros::delay(800);
-//     intake(0);
-//     sRobot->sRobot->moveDist(-1800);
-//     sRobot->turn(650);
-//     sRobot->moveDist(1500);
-//     pros::delay(1000);
-//     sRobot->moveDist(-100);
-//     intake(-1);
-//     ->moveDist(5300);
-//     intake(0);
-//     sRobot->sRobot->moveDist(50, 50);
-//     backout(600);
-}
-
-void test() { //TODO botRed auton here
-    double startPos = sRobot->getMotor("BackLeft")->get_position();
+void bottomRed() { //TODO bottomRed auton first
     sRobot->intakeOut(-127);
     pros::delay(1000);
     sRobot->intakeIn();
     sRobot->moveDist(2150, 60);
-    // pros::delay(500);
-    // sRobot->intakeStop();
-    // sRobot->moveDist(-1600, 40);
-    // pros::delay(500);
-    // sRobot->turn(130);
-    // pros::delay(1000);
-    printf("finished %f\n", (sRobot->getMotor("BackLeft")->get_position() - startPos) - 2150);
+}
+
+void topBlue() {
+
+}
+
+void bottomBlue() {
+
+}
+
+void test() { //TODO turn pid testing here
+    double startPos = sRobot->getMotor("BackLeft")->get_position();
+    sRobot->turn(90);
+    printf("finished %f\n", (sRobot->getMotor("BackLeft")->get_position() - startPos) - 450);
 }
 
 void push() {
+    sRobot->intakeOut(-127);
+    pros::delay(1000);
+    sRobot->intakeStop();
+    pros::delay(500);
     sRobot->moveVel(-90);
     pros::delay(750);
     sRobot->moveVel(0);
     pros::delay(750);
-    sRobot->moveDist(1500, 70);
-    sRobot->intakeOut(-127);
-    pros::delay(1000);
-    sRobot->intakeStop();
-    sRobot->anglerMove(2000);
-    pros::delay(100);
-    sRobot->liftMove(500);
-    pros::delay(100);
-    *(sRobot->getMotor("Lift")) = -127;
-    pros::delay(500);
-    *(sRobot->getMotor("Lift")) = 0;
+    sRobot->moveDist(1500, 127);
 }
-
-// void backout() {
-    
-// }
-
 
 void autonomous() {
    switch(autonselect)

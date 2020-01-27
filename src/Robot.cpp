@@ -50,7 +50,6 @@ void Robot::moveDist(int dist, int limit) {
 	double rightOffset = motors["BackRight"]->get_position();
 	double leftPos, rightPos, avgPos = (leftOffset + rightOffset) / 2;
 	double prevErr = dist;
-	double accelSpeed = 0;
 
 	while (fabs(dist) - 5 > fabs(avgPos) || fabs(dist) + 5 < fabs(avgPos)) {
 		if (motors["BackLeft"]->get_actual_velocity() < 2 && time > 500) {
@@ -286,7 +285,7 @@ void Robot::tower(int tower) {
 	*motors["Lift"] = 0;
 }
 
-void Robot::down() {
+void Robot::down() { //TODO fix this
 	double time = 0;
 	while (sensorAnalog["Lift Potentiometer"]->get_value() > 50) {
 		if (motors["Lift"]->get_actual_velocity() < 2 && time > 500) {

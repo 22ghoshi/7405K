@@ -19,7 +19,6 @@
  */
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-//pros::Motor lift(5);
 
 void opcontrol() {
 	while (true) {
@@ -31,7 +30,7 @@ void opcontrol() {
 		int right = /*127*std::pow((*/ master.get_analog(ANALOG_RIGHT_X) /*/127), (11/7))*0.9*/;
 
 		if (master.get_digital(DIGITAL_A)) {
-			sRobot->moveVel(-60);
+			sRobot->moveVel(-65);
 		} else {
 			sRobot->arcade(left, right);
 		}
@@ -49,10 +48,10 @@ void opcontrol() {
 
 		// ANGLER
 		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-			if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 2400) {
+			if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 500) {
 				*(sRobot->getMotor("Angler")) = 127;
-			} else if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 3900) {
-				*(sRobot->getMotor("Angler")) = 75;
+			} else if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 1300) { // TODO tune angler curve
+				*(sRobot->getMotor("Angler")) = 57 + (0.0875) * (1300 - sRobot->getAnalogSensor("Angler Potentiometer")->get_value());
 			}
 			else {
 				*(sRobot->getMotor("Angler")) = 0;
@@ -79,7 +78,6 @@ void opcontrol() {
 			sRobot->getMotor("Lift")->set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 		}
 
-		//TODO tower macros
 		if (master.get_digital(DIGITAL_RIGHT)) {
 			sRobot->tower(1);
 		}
