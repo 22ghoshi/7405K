@@ -12,7 +12,7 @@
 // vector of autons
 std::vector<std::string> autonNames{"topRed", "botRed", "topBlue", "botBlue", "test", "push"};
 
-autonSelect autonselect = autonSelect::test;
+autonSelect autonselect = autonSelect::botBlue;
 int totalautons = autonNames.size();
 
 /**
@@ -24,7 +24,6 @@ int totalautons = autonNames.size();
 
 void on_center_button() {
 	pros::lcd::set_text(3, "Running Auton " + autonNames[(int)autonselect - 1] + "...");
-	// pros::lcd::set_text(6, std::to_string(angler.get_position()));
 	pros::delay(1000);
 }
 
@@ -42,7 +41,7 @@ void on_left_button() {}
 
 void initialize() {
 	pros::lcd::initialize();
-	pros::delay(20);
+	pros::delay(100);
 	pros::lcd::set_text(1, "Select Auton Below");
 	pros::lcd::set_text(2, autonNames[(int)autonselect - 1] + " ");
 	pros::lcd::register_btn1_cb(on_center_button);
@@ -51,8 +50,6 @@ void initialize() {
 
 	// Robot Class and PID init
 	Robot::Instance();
-	// sRobot->startTask("Angler PID", Robot::anglerPID);
-	// sRobot->startTask("Lift PID", Robot::liftPID);
 }
 
 /**

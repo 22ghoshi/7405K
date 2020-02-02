@@ -1,7 +1,8 @@
 // #include "autonomous.hpp"
- #include "initialize.hpp"
- #include "Robot.hpp"
- #include "main.h"
+#include "Robot.hpp"
+#include "initialize.hpp"
+#include "main.h"
+
 // #include <vector>
 // #include <string>
 
@@ -17,66 +18,106 @@
 //  * from where it left off.
 //  */
 
-void topRed() {
-    
+void topRed() {}
+
+void bottomRed() {  // TODO bottomRed auton first
+	sRobot->intakeOut(-127);
+	pros::delay(750);
+	sRobot->intakeIn(127);
+	sRobot->moveDist(2600, 50);
+	sRobot->intakeStop();
+	sRobot->turn(145);
+	sRobot->moveDist(2300, 90);
+	sRobot->moveDist(-200, -127);
+	sRobot->stackSet(true);
+	sRobot->anglerSet(1200);
+	sRobot->intakeOut(-50);
+	pros::delay(500);
+	sRobot->intakeIn(60);
+	pros::delay(500);
+	sRobot->intakeOut(-60);
+	pros::delay(1000);
+	sRobot->stackSet(false);
+	sRobot->intakeStop();
+	pros::delay(100);
+	sRobot->intakeOut(-100);
+	*(sRobot->getMotor("Lift")) = -40;
+	sRobot->moveVel(-65);
+	pros::delay(500);
+	sRobot->moveVel(0);
+	*(sRobot->getMotor("Lift")) = 0;
+	sRobot->intakeStop();
 }
 
-void bottomRed() { //TODO bottomRed auton first
-    sRobot->intakeOut(-127);
-    pros::delay(1000);
-    sRobot->intakeIn();
-    sRobot->moveDist(2150, 60);
-}
-
-void topBlue() {
-
-}
+void topBlue() {}
 
 void bottomBlue() {
-
+	sRobot->intakeOut(-127);
+	pros::delay(750);
+	sRobot->intakeIn(127);
+	sRobot->moveDist(2600, 50);
+	sRobot->intakeStop();
+	sRobot->turn(-147);
+	sRobot->moveDist(2300, 90);
+	sRobot->moveDist(-200, -127);
+	sRobot->stackSet(1);
+	sRobot->anglerSet(1200);
+	sRobot->intakeOut(-50);
+	pros::delay(500);
+	sRobot->intakeIn(60);
+	pros::delay(500);
+	sRobot->intakeOut(-60);
+	pros::delay(1000);
+	sRobot->stackSet(0);
+	sRobot->intakeStop();
+	pros::delay(100);
+	sRobot->intakeOut(-100);
+	*(sRobot->getMotor("Lift")) = -40;
+	sRobot->moveVel(-65);
+	pros::delay(500);
+	sRobot->moveVel(0);
+	*(sRobot->getMotor("Lift")) = 0;
+	sRobot->intakeStop();
 }
 
-void test() { //TODO turn pid testing here
-    double startPos = sRobot->getMotor("BackLeft")->get_position();
-    sRobot->turn(90);
-    printf("finished %f\n", (sRobot->getMotor("BackLeft")->get_position() - startPos) - 450);
+void test() {  // TODO turn pid testing here
 }
 
 void push() {
-    sRobot->intakeOut(-127);
-    pros::delay(1000);
-    sRobot->intakeStop();
-    pros::delay(500);
-    sRobot->moveVel(-90);
-    pros::delay(750);
-    sRobot->moveVel(0);
-    pros::delay(750);
-    sRobot->moveDist(1500, 127);
+	sRobot->intakeOut(-127);
+	pros::delay(1000);
+	sRobot->intakeStop();
+	pros::delay(500);
+	sRobot->moveVel(-90);
+	pros::delay(750);
+	sRobot->moveVel(0);
+	pros::delay(750);
+	sRobot->moveDist(1500, 127);
 }
 
 void autonomous() {
-   switch(autonselect)
-   {
-       case autonSelect::topRed: 
-        topRed();
-        break;
-       case autonSelect::botRed: 
-        bottomRed();
-        break;
-       case autonSelect::topBlue: 
-        topBlue();
-        break;
-       case autonSelect::botBlue: 
-        bottomBlue();
-        break;
-       case autonSelect::test: 
-        test();
-        break;
-       case autonSelect::push: 
-        push();
-        break;
-       default:
-        push();
-        break;
-   }
+	sRobot->startTask("Angler PID", Robot::anglerPID);
+	switch (autonselect) {
+		case autonSelect::topRed:
+			topRed();
+			break;
+		case autonSelect::botRed:
+			bottomRed();
+			break;
+		case autonSelect::topBlue:
+			topBlue();
+			break;
+		case autonSelect::botBlue:
+			bottomBlue();
+			break;
+		case autonSelect::test:
+			test();
+			break;
+		case autonSelect::push:
+			push();
+			break;
+		default:
+			push();
+			break;
+	}
 }
