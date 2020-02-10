@@ -18,28 +18,39 @@
 //  * from where it left off.
 //  */
 
-void topRed() {}
+void topRed() {
+
+}
 
 void bottomRed() {  // TODO bottomRed auton first
-	sRobot->intakeOut(-127);
+	//deploy
+    sRobot->intakeOut(-127);
 	pros::delay(750);
+
+    //intake 4 row
 	sRobot->intakeIn(127);
-	sRobot->moveDist(2600, 50);
+	sRobot->moveDist(2200, 35);
 	sRobot->intakeStop();
-	sRobot->turn(145);
-	sRobot->moveDist(2300, 90);
+
+    //turn and drive to scoring zone
+	sRobot->turn(146);
+	sRobot->moveDist(1900, 60);
 	sRobot->moveDist(-200, -127);
+
+    //stack
 	sRobot->stackSet(true);
-	sRobot->anglerSet(1200);
+	sRobot->anglerSet(3550);
 	sRobot->intakeOut(-50);
 	pros::delay(500);
-	sRobot->intakeIn(60);
+	sRobot->intakeIn(50);
 	pros::delay(500);
 	sRobot->intakeOut(-60);
-	pros::delay(1000);
+	pros::delay(600);
 	sRobot->stackSet(false);
 	sRobot->intakeStop();
 	pros::delay(100);
+
+    //back out from stack
 	sRobot->intakeOut(-100);
 	*(sRobot->getMotor("Lift")) = -40;
 	sRobot->moveVel(-65);
@@ -49,28 +60,47 @@ void bottomRed() {  // TODO bottomRed auton first
 	sRobot->intakeStop();
 }
 
-void topBlue() {}
+void topBlue() {
+
+}
 
 void bottomBlue() {
-	sRobot->intakeOut(-127);
+	//deploy
+    sRobot->intakeOut(-127);
 	pros::delay(750);
+
+    //intake 4 row
 	sRobot->intakeIn(127);
-	sRobot->moveDist(2600, 50);
+	sRobot->moveDist(2200, 35);
 	sRobot->intakeStop();
-	sRobot->turn(-147);
-	sRobot->moveDist(2300, 90);
+
+	//intake cube next to tower
+	// sRobot->turn(25);
+	// sRobot->moveDist(700, 35);
+	// pros::delay(250);
+	// sRobot->moveDist(-700, -35);
+	// sRobot->turn(-25);
+	// sRobot->intakeStop();
+
+    //turn and drive to scoring zone
+	sRobot->turn(-147.5);
+	sRobot->moveDist(1900, 60);
 	sRobot->moveDist(-200, -127);
-	sRobot->stackSet(1);
-	sRobot->anglerSet(1200);
+
+    //stack
+	sRobot->stackSet(true);
+	sRobot->anglerSet(3550);
 	sRobot->intakeOut(-50);
 	pros::delay(500);
-	sRobot->intakeIn(60);
+	sRobot->intakeIn(50);
 	pros::delay(500);
 	sRobot->intakeOut(-60);
-	pros::delay(1000);
-	sRobot->stackSet(0);
+	pros::delay(600);
+	sRobot->stackSet(false);
 	sRobot->intakeStop();
 	pros::delay(100);
+
+    //back out from stack
 	sRobot->intakeOut(-100);
 	*(sRobot->getMotor("Lift")) = -40;
 	sRobot->moveVel(-65);
@@ -81,6 +111,16 @@ void bottomBlue() {
 }
 
 void test() {  // TODO turn pid testing here
+    sRobot->stackSet(true);
+	sRobot->anglerSet(3550);
+	sRobot->intakeOut(-50);
+	pros::delay(500);
+	sRobot->intakeIn(50);
+	pros::delay(500);
+	sRobot->intakeOut(-60);
+	pros::delay(600);
+	sRobot->stackSet(false);
+	sRobot->intakeStop();
 }
 
 void push() {
@@ -93,6 +133,12 @@ void push() {
 	sRobot->moveVel(0);
 	pros::delay(750);
 	sRobot->moveDist(1500, 127);
+	sRobot->anglerSet(1400);
+	sRobot->stackSet(true);
+	pros::delay(750);
+	sRobot->anglerSet(590);
+	pros::delay(750);
+	sRobot->stackSet(false);
 }
 
 void autonomous() {

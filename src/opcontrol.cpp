@@ -19,11 +19,28 @@
  */
 
 void opcontrol() {
-	sRobot->startTask("taskController", Robot::taskController);
-	while (true) {
-		// why are you here
-		// there is nothing else here
-		// go look somewhere else
+	sRobot->startTask("Drive", Robot::drive);
+	sRobot->startTask("Lift PID", Robot::liftPID);
+	sRobot->startTask("Angler PID", Robot::anglerPID);
+	while (true) { //TODO TOWER MACROS
+		
+		if (sRobot->getMaster()->get_digital(DIGITAL_RIGHT)) {
+			sRobot->towerSet(true);
+			sRobot->anglerSet(1800);
+			pros::delay(500);
+			sRobot->liftSet(1053);
+			pros::delay(1500);
+			sRobot->towerSet(false);
+		}
+
+		if (sRobot->getMaster()->get_digital(DIGITAL_UP)) {
+			sRobot->towerSet(true);
+			sRobot->anglerSet(200);
+			pros::delay(500);
+			sRobot->liftSet(1520);
+			pros::delay(1500);
+			sRobot->towerSet(false);
+		}
 
 		pros::delay(20);
 	}

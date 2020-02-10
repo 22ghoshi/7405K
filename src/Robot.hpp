@@ -23,6 +23,7 @@ class Robot {
 	std::map<std::string, std::unique_ptr<pros::Task>> tasks;
 
 	static Robot* pInstance;
+	static pros::Controller* controller;
 
 	static bool tower;
 	static bool stack;
@@ -32,13 +33,16 @@ class Robot {
 	int getAnglerSet();
 	static Robot* Instance();
 	void arcade(int left, int right);
+	void mecanum(int power, int strafe, int turn);
 
 	void moveDist(int dist, int limit);
 	void moveVel(int vel);
 	void turn(int degrees);
+	void strafe(int dist);
 	void anglerSet(int degrees);
 	void liftSet(int position);
 	void stackSet(bool set);
+	void towerSet(bool set);
 	static void anglerPID(void* params);
 	static void liftPID(void* params);
 	static void drive(void* params);
