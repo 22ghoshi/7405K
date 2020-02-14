@@ -19,7 +19,7 @@
 //  */
 
 void topRed() {
-
+	
 }
 
 void bottomRed() {  // TODO bottomRed auton first
@@ -111,16 +111,8 @@ void bottomBlue() {
 }
 
 void test() {  // TODO turn pid testing here
-    sRobot->stackSet(true);
-	sRobot->anglerSet(3550);
-	sRobot->intakeOut(-50);
-	pros::delay(500);
-	sRobot->intakeIn(50);
-	pros::delay(500);
-	sRobot->intakeOut(-60);
-	pros::delay(600);
-	sRobot->stackSet(false);
-	sRobot->intakeStop();
+    sRobot->strafe(500);
+	sRobot->strafe(-500);
 }
 
 void push() {

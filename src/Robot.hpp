@@ -9,6 +9,8 @@
 
 #define sRobot Robot::Instance()
 
+enum diag { forwardRight = 1, forwardLeft, backwardRight, backwardLeft};
+
 class Robot {
 	private:
 	Robot();
@@ -32,13 +34,13 @@ class Robot {
 	int getLiftSet();
 	int getAnglerSet();
 	static Robot* Instance();
-	void arcade(int left, int right);
 	void mecanum(int power, int strafe, int turn);
 
 	void moveDist(int dist, int limit);
 	void moveVel(int vel);
 	void turn(int degrees);
 	void strafe(int dist);
+	void diagonal(diag direction, int dist, double angle);
 	void anglerSet(int degrees);
 	void liftSet(int position);
 	void stackSet(bool set);
