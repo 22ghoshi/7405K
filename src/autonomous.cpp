@@ -38,7 +38,7 @@ void bottomRed() {  // TODO bottomRed auton first
 	sRobot->moveDist(-200, -127);
 
     //stack
-	sRobot->stackSet(true);
+	sRobot->amoveSet(true);
 	sRobot->anglerSet(3550);
 	sRobot->intakeOut(-50);
 	pros::delay(500);
@@ -46,7 +46,7 @@ void bottomRed() {  // TODO bottomRed auton first
 	pros::delay(500);
 	sRobot->intakeOut(-60);
 	pros::delay(600);
-	sRobot->stackSet(false);
+	sRobot->amoveSet(false);
 	sRobot->intakeStop();
 	pros::delay(100);
 
@@ -88,7 +88,7 @@ void bottomBlue() {
 	sRobot->moveDist(-200, -127);
 
     //stack
-	sRobot->stackSet(true);
+	sRobot->amoveSet(true);
 	sRobot->anglerSet(3550);
 	sRobot->intakeOut(-50);
 	pros::delay(500);
@@ -96,7 +96,7 @@ void bottomBlue() {
 	pros::delay(500);
 	sRobot->intakeOut(-60);
 	pros::delay(600);
-	sRobot->stackSet(false);
+	sRobot->amoveSet(false);
 	sRobot->intakeStop();
 	pros::delay(100);
 
@@ -110,7 +110,7 @@ void bottomBlue() {
 	sRobot->intakeStop();
 }
 
-void test() {  // TODO turn pid testing here
+void test() {  //TODO turn/strafe/diag pid testing here
     sRobot->strafe(500);
 	sRobot->strafe(-500);
 }
@@ -126,11 +126,11 @@ void push() {
 	pros::delay(750);
 	sRobot->moveDist(1500, 127);
 	sRobot->anglerSet(1400);
-	sRobot->stackSet(true);
+	sRobot->amoveSet(true);
 	pros::delay(750);
 	sRobot->anglerSet(590);
 	pros::delay(750);
-	sRobot->stackSet(false);
+	sRobot->amoveSet(false);
 }
 
 void autonomous() {

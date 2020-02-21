@@ -4,9 +4,9 @@ Robot* Robot::pInstance = NULL;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 pros::Controller* Robot::controller =  &master;
-pros::Imu inertialSensor(15);
-bool Robot::tower = false;
-bool Robot::stack = false;
+pros::Imu inertialSensor(14);
+bool Robot::amove = false;
+bool Robot::lmove = false;
 
 Robot::Robot() {
 	// Starting Values for setpoints
@@ -14,14 +14,14 @@ Robot::Robot() {
 	anglerSetPoint.store(11);
 	inertialSensor.reset();
 	// Motors Init
-	motors["BackLeft"] = std::make_unique<pros::Motor>(1);
-	motors["BackRight"] = std::make_unique<pros::Motor>(4, true);
-	motors["FrontLeft"] = std::make_unique<pros::Motor>(11);
-	motors["FrontRight"] = std::make_unique<pros::Motor>(13, true);
-	motors["Angler"] = std::make_unique<pros::Motor>(14);
-	motors["Lift"] = std::make_unique<pros::Motor>(12);
-	motors["LeftIntake"] = std::make_unique<pros::Motor>(5, pros::E_MOTOR_GEARSET_36);
-	motors["RightIntake"] = std::make_unique<pros::Motor>(16, pros::E_MOTOR_GEARSET_36, true);
+	motors["BackLeft"] = std::make_unique<pros::Motor>(12, true);
+	motors["BackRight"] = std::make_unique<pros::Motor>(20);
+	motors["FrontLeft"] = std::make_unique<pros::Motor>(13, true);
+	motors["FrontRight"] = std::make_unique<pros::Motor>(19);
+	motors["Angler"] = std::make_unique<pros::Motor>(8);
+	motors["Lift"] = std::make_unique<pros::Motor>(10);
+	motors["LeftIntake"] = std::make_unique<pros::Motor>(1, pros::E_MOTOR_GEARSET_36);
+	motors["RightIntake"] = std::make_unique<pros::Motor>(9, pros::E_MOTOR_GEARSET_36, true);
 
 	// Sensors Init
 	sensorAnalog["Angler Potentiometer"] = std::make_unique<pros::ADIAnalogIn>(1);
@@ -54,6 +54,7 @@ void Robot::moveDist(int dist, int limit) {
 	double leftOffset = motors["BackLeft"]->get_position();
 	double rightOffset = motors["BackRight"]->get_position();
 	double leftPos, rightPos, avgPos = (leftOffset + rightOffset) / 2;
+	double turnOffset = inertialSensor.get_rotation();
 	double prevErr = dist;
 
 	while (fabs(dist) - 5 > fabs(avgPos) || fabs(dist) + 5 < fabs(avgPos)) {
@@ -64,17 +65,26 @@ void Robot::moveDist(int dist, int limit) {
 		rightPos = motors["BackRight"]->get_position() - rightOffset;
 		avgPos = (leftPos + rightPos) / 2;
 
+
 		double err = dist - avgPos;
 		P = err;
 		I += err;
 		D = err - prevErr;
 		prevErr = err;
 
+		double turn = (0.5) * inertialSensor.get_rotation() - turnOffset; //TODO adjust turn correction
+
 		double res = (kP * P) + (kI * I) + (kD * D);
 		if ((res < 0 && res < limit) || (res > 0 && res > limit)) {
-			moveVel(limit);
+			*motors["BackLeft"] = limit - turn;
+			*motors["BackRight"] = limit + turn;
+			*motors["FrontLeft"] = limit - turn;
+			*motors["FrontRight"] = limit + turn;
 		} else {
-			moveVel(res);
+			*motors["BackLeft"] = res - turn;
+			*motors["BackRight"] = res + turn;
+			*motors["FrontLeft"] = res - turn;
+			*motors["FrontRight"] = res + turn;
 		}
 		time += 20;
 		pros::delay(20);
@@ -129,7 +139,7 @@ void Robot::turn(int degrees) {  // TODO tune values for turn w/ sensor (later w
 
 void Robot::strafe(int dist) {
 	int time;
-	double kP = 0;
+	double kP = 0.1;
 	double kI = 0;
 	double kD = 0;
 	double P = 0, I = 0, D = 0;
@@ -222,7 +232,7 @@ void Robot::diagonal(diag direction, int dist, double angle) {
 			avgPos = (leftOffset + rightOffset) / 2;
 
 			while(fabs(dist) - 5 > fabs(avgPos) || fabs(dist) + 5 < fabs(avgPos)) {
-				if (motors["BackRight"]->get_actual_velocity() < 2 || time > 200) {
+				if (motors["BackRight"]->get_actual_velocity() < 2 && time > 200) {
 					break;
 				}
 				
@@ -256,7 +266,7 @@ void Robot::diagonal(diag direction, int dist, double angle) {
 			avgPos = (leftOffset + rightOffset) / 2;
 
 			while(fabs(dist) - 5 > fabs(avgPos) || fabs(dist) + 5 < fabs(avgPos)) {
-				if (motors["BackLeft"]->get_actual_velocity() < 2 || time > 200) {
+				if (motors["BackLeft"]->get_actual_velocity() < 2 && time > 200) {
 					break;
 				}
 				
@@ -290,7 +300,7 @@ void Robot::diagonal(diag direction, int dist, double angle) {
 			avgPos = (leftOffset + rightOffset) / 2;
 
 			while(fabs(dist) - 5 > fabs(avgPos) || fabs(dist) + 5 < fabs(avgPos)) {
-				if (motors["BackRight"]->get_actual_velocity() < 2 || time > 200) {
+				if (motors["BackRight"]->get_actual_velocity() < 2 && time > 200) {
 					break;
 				}
 				
@@ -324,7 +334,7 @@ void Robot::diagonal(diag direction, int dist, double angle) {
 			avgPos = (leftOffset + rightOffset) / 2;
 
 			while(fabs(dist) - 5 > fabs(avgPos) || fabs(dist) + 5 < fabs(avgPos)) {
-				if (motors["BackLeft"]->get_actual_velocity() < 2 || time > 200) {
+				if (motors["BackLeft"]->get_actual_velocity() < 2 && time > 200) {
 					break;
 				}
 				
@@ -372,12 +382,12 @@ int Robot::getAnglerSet() {
 	return anglerSetPoint.load();
 }
 
-void Robot::stackSet(bool set) {
-	stack = set;
+void Robot::amoveSet(bool set) {
+	amove = set;
 }
 
-void Robot::towerSet(bool set) {
-	tower = set;
+void Robot::lmoveSet(bool set) {
+	lmove = set;
 }
 
 void Robot::liftPID(void* params) {  // TODO tune lift pid
@@ -396,7 +406,7 @@ void Robot::liftPID(void* params) {  // TODO tune lift pid
 			master.set_text(0, 0, "lift   down");
 		} else if (master.get_digital(DIGITAL_A)) {
 			*(sRobot->getMotor("Lift")) = -30;
-		} else if (tower) {
+		} else if (lmove) {
 			int currentSet = sRobot->getLiftSet();
 			I = 0;
 
@@ -435,7 +445,7 @@ void Robot::anglerPID(void* params) {  // TODO tune angler pid
 			}
 		} else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
 			*(sRobot->getMotor("Angler")) = -127;
-		} else if (tower || stack) {
+		} else if (amove) {
 			I = 0;
 			
 			double err = sRobot->getAnglerSet() - sRobot->getAnalogSensor("Angler Potentiometer")->get_value();
@@ -454,14 +464,14 @@ void Robot::anglerPID(void* params) {  // TODO tune angler pid
 	}
 }
 
-void Robot::drive(void* params) { //TODO mecanum later
+void Robot::drive(void* params) {
 	while(true) {		
 		int lefty = master.get_analog(ANALOG_LEFT_Y);
 		int leftx = master.get_analog(ANALOG_LEFT_X);
 		int right = master.get_analog(ANALOG_RIGHT_X);
 		int avgPos = (sRobot->getMotor("BackLeft")->get_position() + sRobot->getMotor("BackRight")->get_position()) / 2;
 		int power = (int) std::round(127.0 * std::pow((double) lefty / 127, (double) 13 / 9));
-		int strafe = (int) std::round(127.0 * std::pow((double) leftx / 127, (double) 13 / 9));
+		int strafe = (int) std::round(127.0 * std::pow((double) leftx / 127, (double) 25 / 9));
 		int turn = (int) std::round(127.0 * std::pow((double) right / 127, (double) 13 / 9));
 
 		if (lefty < 0)
@@ -471,7 +481,7 @@ void Robot::drive(void* params) { //TODO mecanum later
 
 		if (leftx < 0)
 		{
-			strafe = -1 * (int) std::round(127.0 * std::pow((double) (-leftx) / 127, (double) 13 / 9));
+			strafe = -1 * (int) std::round(127.0 * std::pow((double) (-leftx) / 127, (double) 25 / 9));
 		}
 
 		if(right < 0)
@@ -479,9 +489,10 @@ void Robot::drive(void* params) { //TODO mecanum later
 			turn = -1 * ((int) std::round(127.0 * std::pow((double) (-right) / 127, (double) 13 / 9)));
 		}
 		
-		pros::lcd::set_text(4, "rotation " + std::to_string(inertialSensor.get_rotation()));
-		pros::lcd::set_text(5, "avgPos: " + std::to_string(avgPos));
-		pros::lcd::set_text(6, "angler: " + std::to_string(sRobot->getAnalogSensor("Angler Potentiometer")->get_value()));
+		pros::lcd::set_text(4, "Angler: " + std::to_string(sRobot->getAnalogSensor("Angler Potentiometer")->get_value()));
+		pros::lcd::set_text(5, "Lift: " + std::to_string(sRobot->getAnalogSensor("Lift Potentiometer")->get_value()));
+		pros::lcd::set_text(6, "avgPos: " + std::to_string(avgPos));
+		pros::lcd::set_text(7, "rotation: " + std::to_string(inertialSensor.get_rotation()));
 
 		if (master.get_digital(DIGITAL_A)) {
 			sRobot->moveVel(-65);

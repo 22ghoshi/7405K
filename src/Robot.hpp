@@ -27,8 +27,8 @@ class Robot {
 	static Robot* pInstance;
 	static pros::Controller* controller;
 
-	static bool tower;
-	static bool stack;
+	static bool amove;
+	static bool lmove;
 
 	public:
 	int getLiftSet();
@@ -43,8 +43,8 @@ class Robot {
 	void diagonal(diag direction, int dist, double angle);
 	void anglerSet(int degrees);
 	void liftSet(int position);
-	void stackSet(bool set);
-	void towerSet(bool set);
+	void amoveSet(bool set);
+	void lmoveSet(bool set);
 	static void anglerPID(void* params);
 	static void liftPID(void* params);
 	static void drive(void* params);
