@@ -24,11 +24,11 @@ void topRed() {
 
 void bottomRed() {  // TODO bottomRed auton first
 	//deploy
-    sRobot->intakeOut(-127);
+    sRobot->intake(-127);
 	pros::delay(750);
 
     //intake 4 row
-	sRobot->intakeIn(127);
+	sRobot->intake(127);
 	sRobot->moveDist(2200, 35);
 	sRobot->intakeStop();
 
@@ -40,18 +40,18 @@ void bottomRed() {  // TODO bottomRed auton first
     //stack
 	sRobot->amoveSet(true);
 	sRobot->anglerSet(3550);
-	sRobot->intakeOut(-50);
+	sRobot->intake(-50);
 	pros::delay(500);
-	sRobot->intakeIn(50);
+	sRobot->intake(50);
 	pros::delay(500);
-	sRobot->intakeOut(-60);
+	sRobot->intake(-60);
 	pros::delay(600);
 	sRobot->amoveSet(false);
 	sRobot->intakeStop();
 	pros::delay(100);
 
     //back out from stack
-	sRobot->intakeOut(-100);
+	sRobot->intake(-100);
 	*(sRobot->getMotor("Lift")) = -40;
 	sRobot->moveVel(-65);
 	pros::delay(500);
@@ -66,11 +66,11 @@ void topBlue() {
 
 void bottomBlue() {
 	//deploy
-    sRobot->intakeOut(-127);
+    sRobot->intake(-127);
 	pros::delay(750);
 
     //intake 4 row
-	sRobot->intakeIn(127);
+	sRobot->intake(127);
 	sRobot->moveDist(2200, 35);
 	sRobot->intakeStop();
 
@@ -90,18 +90,18 @@ void bottomBlue() {
     //stack
 	sRobot->amoveSet(true);
 	sRobot->anglerSet(3550);
-	sRobot->intakeOut(-50);
+	sRobot->intake(-50);
 	pros::delay(500);
-	sRobot->intakeIn(50);
+	sRobot->intake(50);
 	pros::delay(500);
-	sRobot->intakeOut(-60);
+	sRobot->intake(-60);
 	pros::delay(600);
 	sRobot->amoveSet(false);
 	sRobot->intakeStop();
 	pros::delay(100);
 
     //back out from stack
-	sRobot->intakeOut(-100);
+	sRobot->intake(-100);
 	*(sRobot->getMotor("Lift")) = -40;
 	sRobot->moveVel(-65);
 	pros::delay(500);
@@ -110,31 +110,30 @@ void bottomBlue() {
 	sRobot->intakeStop();
 }
 
-void test() {  //TODO turn/strafe/diag pid testing here
-    sRobot->strafe(500);
-	sRobot->strafe(-500);
+void test() {  //TODO forward/turn/strafe/diag pid testing here
+    double offset = ((sRobot->getMotor("BackLeft")->get_position()) + (sRobot->getMotor("BackRight")->get_position()) / 2);
+	sRobot->moveDist(500, 127);
+	pros::delay(200);
+	double avgPos = ((sRobot->getMotor("BackLeft")->get_position()) + (sRobot->getMotor("BackRight")->get_position()) / 2) - offset;
+	pros::lcd::set_text(3, std::to_string(avgPos));
 }
 
 void push() {
-	sRobot->intakeOut(-127);
-	pros::delay(1000);
-	sRobot->intakeStop();
-	pros::delay(500);
-	sRobot->moveVel(-90);
-	pros::delay(750);
-	sRobot->moveVel(0);
-	pros::delay(750);
-	sRobot->moveDist(1500, 127);
-	sRobot->anglerSet(1400);
+	sRobot->moveDist(-1550, -127);
+	sRobot->intake(-127);
+	sRobot->moveDist(1550, 127);
+	sRobot->intake(0);
 	sRobot->amoveSet(true);
-	pros::delay(750);
-	sRobot->anglerSet(590);
-	pros::delay(750);
+	sRobot->anglerSet(2000);
+	pros::delay(1000);
+	sRobot->anglerSet(430);
+	pros::delay(500);
 	sRobot->amoveSet(false);
 }
 
 void autonomous() {
 	sRobot->startTask("Angler PID", Robot::anglerPID);
+	sRobot->startTask("Lift PID", Robot::liftPID);
 	switch (autonselect) {
 		case autonSelect::topRed:
 			topRed();

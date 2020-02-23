@@ -22,7 +22,7 @@ void opcontrol() {
 	sRobot->startTask("Drive", Robot::drive);
 	sRobot->startTask("Lift PID", Robot::liftPID);
 	sRobot->startTask("Angler PID", Robot::anglerPID);
-	while (true) { //TODO TOWER MACROS
+	while (true) { //TODO TOWER/DOWN MACROS
 		
 		if (sRobot->getMaster()->get_digital(DIGITAL_RIGHT)) {
 			sRobot->amoveSet(true);
@@ -49,16 +49,20 @@ void opcontrol() {
 		if (sRobot->getMaster()->get_digital(DIGITAL_DOWN)) {
 			sRobot->lmoveSet(true);
 			sRobot->liftSet(100);
-			while(sRobot->getAnalogSensor("Lift Potentiometer")->get_value() > 100) {
-				pros::delay(2);
-			}
-			sRobot->lmoveSet(false);
+			pros::delay(500);	
 			sRobot->amoveSet(true);
-			sRobot->anglerSet(410);
-			while (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() > 420) {
-				pros::delay(2);
-			}
+			sRobot->anglerSet(430);
+			pros::delay(1000);
+			sRobot->lmoveSet(false);
 			sRobot->amoveSet(false);
+		}
+
+		if (sRobot->getMaster()->get_digital(DIGITAL_X)) {
+			
+
+			
+			// autonomous();
+			// break;
 		}
 
 		pros::delay(20);

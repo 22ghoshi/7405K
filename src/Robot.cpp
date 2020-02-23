@@ -20,7 +20,7 @@ Robot::Robot() {
 	motors["FrontRight"] = std::make_unique<pros::Motor>(19);
 	motors["Angler"] = std::make_unique<pros::Motor>(8);
 	motors["Lift"] = std::make_unique<pros::Motor>(10);
-	motors["LeftIntake"] = std::make_unique<pros::Motor>(1, pros::E_MOTOR_GEARSET_36);
+	motors["LeftIntake"] = std::make_unique<pros::Motor>(2, pros::E_MOTOR_GEARSET_36);
 	motors["RightIntake"] = std::make_unique<pros::Motor>(9, pros::E_MOTOR_GEARSET_36, true);
 
 	// Sensors Init
@@ -44,7 +44,7 @@ void Robot::mecanum(int power, int strafe, int turn) {
 	*motors["FrontRight"] = power - strafe - turn;
 }
 
-void Robot::moveDist(int dist, int limit) {
+void Robot::moveDist(int dist, int limit) { //TODO tune with mecanums
 	double time = 0;
 	double kP = 0.145;
 	double kI = 0;
@@ -54,7 +54,7 @@ void Robot::moveDist(int dist, int limit) {
 	double leftOffset = motors["BackLeft"]->get_position();
 	double rightOffset = motors["BackRight"]->get_position();
 	double leftPos, rightPos, avgPos = (leftOffset + rightOffset) / 2;
-	double turnOffset = inertialSensor.get_rotation();
+	//double turnOffset = inertialSensor.get_rotation();
 	double prevErr = dist;
 
 	while (fabs(dist) - 5 > fabs(avgPos) || fabs(dist) + 5 < fabs(avgPos)) {
@@ -72,19 +72,19 @@ void Robot::moveDist(int dist, int limit) {
 		D = err - prevErr;
 		prevErr = err;
 
-		double turn = (0.5) * inertialSensor.get_rotation() - turnOffset; //TODO adjust turn correction
+		//double turn = (0.25) * inertialSensor.get_rotation() - turnOffset; //TODO adjust turn correction
 
 		double res = (kP * P) + (kI * I) + (kD * D);
 		if ((res < 0 && res < limit) || (res > 0 && res > limit)) {
-			*motors["BackLeft"] = limit - turn;
-			*motors["BackRight"] = limit + turn;
-			*motors["FrontLeft"] = limit - turn;
-			*motors["FrontRight"] = limit + turn;
+			*motors["BackLeft"] = limit;
+			*motors["BackRight"] = limit;
+			*motors["FrontLeft"] = limit;
+			*motors["FrontRight"] = limit;
 		} else {
-			*motors["BackLeft"] = res - turn;
-			*motors["BackRight"] = res + turn;
-			*motors["FrontLeft"] = res - turn;
-			*motors["FrontRight"] = res + turn;
+			*motors["BackLeft"] = res;
+			*motors["BackRight"] = res;
+			*motors["FrontLeft"] = res;
+			*motors["FrontRight"] = res;
 		}
 		time += 20;
 		pros::delay(20);
@@ -390,7 +390,7 @@ void Robot::lmoveSet(bool set) {
 	lmove = set;
 }
 
-void Robot::liftPID(void* params) {  // TODO tune lift pid
+void Robot::liftPID(void* params) {
 	double kP = 0.25;
 	double kI = 0;
 	double kD = 0.35;
@@ -424,7 +424,7 @@ void Robot::liftPID(void* params) {  // TODO tune lift pid
 	}
 }
 
-void Robot::anglerPID(void* params) {  // TODO tune angler pid
+void Robot::anglerPID(void* params) {
 	
 	double kP = 0.2;
 	double kI = 0;
@@ -472,7 +472,7 @@ void Robot::drive(void* params) {
 		int avgPos = (sRobot->getMotor("BackLeft")->get_position() + sRobot->getMotor("BackRight")->get_position()) / 2;
 		int power = (int) std::round(127.0 * std::pow((double) lefty / 127, (double) 13 / 9));
 		int strafe = (int) std::round(127.0 * std::pow((double) leftx / 127, (double) 25 / 9));
-		int turn = (int) std::round(127.0 * std::pow((double) right / 127, (double) 13 / 9));
+		int turn = (int) std::round(127.0 * std::pow((double) right / 127, (double) 19 / 9));
 
 		if (lefty < 0)
 		{
@@ -486,7 +486,7 @@ void Robot::drive(void* params) {
 
 		if(right < 0)
 		{
-			turn = -1 * ((int) std::round(127.0 * std::pow((double) (-right) / 127, (double) 13 / 9)));
+			turn = -1 * ((int) std::round(127.0 * std::pow((double) (-right) / 127, (double) 19 / 9)));
 		}
 		
 		pros::lcd::set_text(4, "Angler: " + std::to_string(sRobot->getAnalogSensor("Angler Potentiometer")->get_value()));
@@ -501,9 +501,9 @@ void Robot::drive(void* params) {
 		}
 
 		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-			sRobot->intakeIn(127);
+			sRobot->intake(127);
 		} else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2) || master.get_digital(DIGITAL_A)) {
-			sRobot->intakeOut(-127);
+			sRobot->intake(-127);
 		} else {
 			sRobot->intakeStop();
 		}
@@ -512,12 +512,7 @@ void Robot::drive(void* params) {
 	}
 }
 
-void Robot::intakeIn(int speed) {
-	*motors["LeftIntake"] = speed;
-	*motors["RightIntake"] = speed;
-}
-
-void Robot::intakeOut(int speed) {
+void Robot::intake(int speed) {
 	*motors["LeftIntake"] = speed;
 	*motors["RightIntake"] = speed;
 }

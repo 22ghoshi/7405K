@@ -49,8 +49,7 @@ class Robot {
 	static void liftPID(void* params);
 	static void drive(void* params);
 	static void taskController(void* params);
-	void intakeIn(int speed);
-	void intakeOut(int speed);
+	void intake(int speed);
 	void intakeStop();
 
 	void startTask(std::string name, void (*func)(void*), void* params = nullptr);

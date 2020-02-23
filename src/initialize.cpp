@@ -12,7 +12,7 @@
 // vector of autons
 std::vector<std::string> autonNames{"topRed", "botRed", "topBlue", "botBlue", "test", "push"};
 
-autonSelect autonselect = autonSelect::botBlue;
+autonSelect autonselect = autonSelect::test;
 int totalautons = autonNames.size();
 
 /**
