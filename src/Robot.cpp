@@ -4,7 +4,7 @@ Robot* Robot::pInstance = NULL;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 pros::Controller* Robot::controller =  &master;
-pros::Imu inertialSensor(14);
+pros::Imu inertialSensor(5);
 bool Robot::amove = false;
 bool Robot::lmove = false;
 
@@ -14,20 +14,20 @@ Robot::Robot() {
 	anglerSetPoint.store(11);
 	inertialSensor.reset();
 	// Motors Init
-	motors["BackLeft"] = std::make_unique<pros::Motor>(12, true);
-	motors["BackRight"] = std::make_unique<pros::Motor>(20);
-	motors["FrontLeft"] = std::make_unique<pros::Motor>(13, true);
-	motors["FrontRight"] = std::make_unique<pros::Motor>(19);
-	motors["Angler"] = std::make_unique<pros::Motor>(8);
-	motors["Lift"] = std::make_unique<pros::Motor>(10);
-	motors["LeftIntake"] = std::make_unique<pros::Motor>(2, pros::E_MOTOR_GEARSET_36);
-	motors["RightIntake"] = std::make_unique<pros::Motor>(9, pros::E_MOTOR_GEARSET_36, true);
+	motors["BackLeft"] = std::make_unique<pros::Motor>(7, true);
+	motors["BackRight"] = std::make_unique<pros::Motor>(9);
+	motors["FrontLeft"] = std::make_unique<pros::Motor>(20, true);
+	motors["FrontRight"] = std::make_unique<pros::Motor>(10);
+	motors["Angler"] = std::make_unique<pros::Motor>(12);
+	motors["Lift"] = std::make_unique<pros::Motor>(18, true);
+	motors["LeftIntake"] = std::make_unique<pros::Motor>(19, pros::E_MOTOR_GEARSET_36);
+	motors["RightIntake"] = std::make_unique<pros::Motor>(13, pros::E_MOTOR_GEARSET_36, true);
 
 	// Sensors Init
 	sensorAnalog["Angler Potentiometer"] = std::make_unique<pros::ADIAnalogIn>(1);
 	sensorAnalog["Lift Potentiometer"] = std::make_unique<pros::ADIAnalogIn>(2);
 
-	pros::delay(50);
+	pros::delay(100);
 }
 
 Robot* Robot::Instance() {
@@ -46,48 +46,84 @@ void Robot::mecanum(int power, int strafe, int turn) {
 
 void Robot::moveDist(int dist, int limit) { //TODO tune with mecanums
 	double time = 0;
-	double kP = 0.145;
-	double kI = 0;
-	double kD = 0.017;
-	double P = 0, I = 0, D = 0;
 
 	double leftOffset = motors["BackLeft"]->get_position();
 	double rightOffset = motors["BackRight"]->get_position();
 	double leftPos, rightPos, avgPos = (leftOffset + rightOffset) / 2;
-	//double turnOffset = inertialSensor.get_rotation();
 	double prevErr = dist;
 
-	while (fabs(dist) - 5 > fabs(avgPos) || fabs(dist) + 5 < fabs(avgPos)) {
-		if (motors["BackLeft"]->get_actual_velocity() < 2 && time > 500) {
-			break;
+	if (dist > 0) { 
+
+		double kP = 0.1175;
+		double kI = 0;
+		double kD = 0.06;
+		double P = 0, I = 0, D = 0;
+
+		while (avgPos < (dist - 5)) {
+			if (motors["BackLeft"]->get_actual_velocity() < 2 && time > 500) {
+				break;
+			}
+			leftPos = motors["BackLeft"]->get_position() - leftOffset;
+			rightPos = motors["BackRight"]->get_position() - rightOffset;
+			avgPos = (leftPos + rightPos) / 2;
+
+
+			double err = dist - avgPos;
+			P = err;
+			I += err;
+			D = err - prevErr;
+			prevErr = err;
+
+			double res = (kP * P) + (kI * I) + (kD * D);
+			if ((res < 0 && res < limit) || (res > 0 && res > limit)) {
+				*motors["BackLeft"] = limit;
+				*motors["BackRight"] = limit;
+				*motors["FrontLeft"] = limit;
+				*motors["FrontRight"] = limit;
+			} else {
+				*motors["BackLeft"] = res;
+				*motors["BackRight"] = res;
+				*motors["FrontLeft"] = res;
+				*motors["FrontRight"] = res;
+			}
+			time += 20;
+			pros::delay(20);
 		}
-		leftPos = motors["BackLeft"]->get_position() - leftOffset;
-		rightPos = motors["BackRight"]->get_position() - rightOffset;
-		avgPos = (leftPos + rightPos) / 2;
+	}
+
+	if (dist < 0) { 
+
+		double kP = 0.245;
+		double kI = 0;
+		double kD = 0.06;
+		double P = 0, I = 0, D = 0;
+
+		while (avgPos > (dist + 5)) {
+			if (motors["BackLeft"]->get_actual_velocity() < 2 && time > 1500) {
+				break;
+			}
+			leftPos = motors["BackLeft"]->get_position() - leftOffset;
+			rightPos = motors["BackRight"]->get_position() - rightOffset;
+			avgPos = (leftPos + rightPos) / 2;
 
 
-		double err = dist - avgPos;
-		P = err;
-		I += err;
-		D = err - prevErr;
-		prevErr = err;
+			double err = dist - avgPos;
+			P = err;
+			I += err;
+			D = err - prevErr;
+			prevErr = err;
 
-		//double turn = (0.25) * inertialSensor.get_rotation() - turnOffset; //TODO adjust turn correction
+			//double turn = (0.25) * inertialSensor.get_rotation() - turnOffset; //TODO adjust turn correction
 
-		double res = (kP * P) + (kI * I) + (kD * D);
-		if ((res < 0 && res < limit) || (res > 0 && res > limit)) {
-			*motors["BackLeft"] = limit;
-			*motors["BackRight"] = limit;
-			*motors["FrontLeft"] = limit;
-			*motors["FrontRight"] = limit;
-		} else {
-			*motors["BackLeft"] = res;
-			*motors["BackRight"] = res;
-			*motors["FrontLeft"] = res;
-			*motors["FrontRight"] = res;
+			double res = (kP * P) + (kI * I) + (kD * D);
+			if ((res < 0 && res < limit) || (res > 0 && res > limit)) {
+				moveVel(limit);
+			} else {
+				moveVel(res);
+			}
+			time += 20;
+			pros::delay(20);
 		}
-		time += 20;
-		pros::delay(20);
 	}
 	moveVel(0);
 	pros::delay(100);
@@ -102,19 +138,20 @@ void Robot::moveVel(int vel) {
 
 void Robot::turn(int degrees) {  // TODO tune values for turn w/ sensor (later with mecanum)
 	int time;
-	double kP = 1.15;
-	double kI = 0.001;
-	double kD = 0.25;
+	double kP = 1.6;
+	double kI = 0;
+	double kD = 0.1;
 	double P = 0, I = 0, D = 0;
 
 	double offset = inertialSensor.get_rotation();
 	double pos = 0;
-	double prevErr = degrees;
-
-	while (fabs(degrees) - 2 > fabs(pos) || fabs(degrees) + 2 < fabs(pos)) {
-		if (motors["BackRight"]->get_actual_velocity() < 2 && time > 500) {
-			break;
-		}
+	double prevErr = degrees; 
+	
+	if (degrees > 0) { //turning left
+		while (pos < (degrees - 5)) {
+		// if (motors["BackRight"]->get_actual_velocity() < 2 && time > 500) {
+		// 	break;
+		// }
 		
 		pos = inertialSensor.get_rotation() - offset;
 
@@ -125,21 +162,49 @@ void Robot::turn(int degrees) {  // TODO tune values for turn w/ sensor (later w
 		prevErr = err;
 
 		double res = (kP * P) + (kI * I) + (kD * D);
-		*motors["BackLeft"] = res;
-		*motors["BackRight"] = -res;
-		*motors["FrontLeft"] = res;
-		*motors["FrontRight"] = -res;
+		*motors["BackLeft"] = -res;
+		*motors["BackRight"] = res;
+		*motors["FrontLeft"] = -res;
+		*motors["FrontRight"] = res;
 
 		time += 20;
 		pros::delay(20);
+		}
 	}
+
+	if (degrees < 0) { //turning right
+		while (pos > (degrees + 5)) {
+		// if (motors["BackRight"]->get_actual_velocity() < 2 && time > 500) {
+		// 	break;
+		// }
+		
+		pos = inertialSensor.get_rotation() - offset;
+
+		double err = degrees - pos;
+		P = err;
+		I += err;
+		D = err - prevErr;
+		prevErr = err;
+
+		double res = (kP * P) + (kI * I) + (kD * D);
+		*motors["BackLeft"] = -res;
+		*motors["BackRight"] = res;
+		*motors["FrontLeft"] = -res;
+		*motors["FrontRight"] = res;
+
+		time += 20;
+		pros::delay(20);
+		}
+	}
+
+	
 	moveVel(0);
 	pros::delay(100);
 }
 
 void Robot::strafe(int dist) {
-	int time;
-	double kP = 0.1;
+	double time = 0;
+	double kP = 0.2;
 	double kI = 0;
 	double kD = 0;
 	double P = 0, I = 0, D = 0;
@@ -419,6 +484,7 @@ void Robot::liftPID(void* params) {
 			*(sRobot->getMotor("Lift")) = (kP * P) + (kI * I) + (kD * D);
 		} else {
 			*(sRobot->getMotor("Lift")) = 0;
+			sRobot->getMotor("Lift")->set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 		}
 		pros::delay(20);
 	}
@@ -434,17 +500,27 @@ void Robot::anglerPID(void* params) {
 	int lastSet = sRobot->getAnglerSet();
 	while (true) {
 		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-			if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 2200) {
+			if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 1400) {
 				*(sRobot->getMotor("Angler")) = 127;
-			} else if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 3500) {
-				*(sRobot->getMotor("Angler")) = 30 + (0.04) * (3500 - sRobot->getAnalogSensor("Angler Potentiometer")->get_value());
+			} else if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 2200) {
+				*(sRobot->getMotor("Angler")) = (0.075) * (2750 - sRobot->getAnalogSensor("Angler Potentiometer")->get_value());
+			}
+			else if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 2700) {
+				*(sRobot->getMotor("Angler")) = (0.05) * (2750 - sRobot->getAnalogSensor("Angler Potentiometer")->get_value());
 			}
 			else {
 				*(sRobot->getMotor("Angler")) = 0;
 				sRobot->getMotor("Angler")->set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 			}
 		} else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-			*(sRobot->getMotor("Angler")) = -127;
+			if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() > 350) {
+				*(sRobot->getMotor("Angler")) = -127;
+			}
+			else {
+				*(sRobot->getMotor("Angler")) = 0;
+				sRobot->getMotor("Angler")->set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+			}
+			
 		} else if (amove) {
 			I = 0;
 			
@@ -495,7 +571,7 @@ void Robot::drive(void* params) {
 		pros::lcd::set_text(7, "rotation: " + std::to_string(inertialSensor.get_rotation()));
 
 		if (master.get_digital(DIGITAL_A)) {
-			sRobot->moveVel(-65);
+			sRobot->moveVel(-100);
 		} else {
 			sRobot->mecanum(power, strafe, turn);
 		}

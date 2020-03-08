@@ -25,22 +25,30 @@ void opcontrol() {
 	while (true) { //TODO TOWER/DOWN MACROS
 		
 		if (sRobot->getMaster()->get_digital(DIGITAL_RIGHT)) {
-			sRobot->amoveSet(true);
-			sRobot->anglerSet(2050);
-			pros::delay(500);
+			if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 1200) {
+				sRobot->amoveSet(true);
+				sRobot->anglerSet(1200);
+				while (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 800) {
+					pros::delay(2);
+				}
+			}
 			sRobot->lmoveSet(true);
-			sRobot->liftSet(800);
+			sRobot->liftSet(2050);
 			pros::delay(1500);
 			sRobot->lmoveSet(false);
 			sRobot->amoveSet(false);
 		}
 
 		if (sRobot->getMaster()->get_digital(DIGITAL_UP)) {
-			sRobot->amoveSet(true);
-			sRobot->anglerSet(2100);
-			pros::delay(500);
+			if (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 1200) {
+				sRobot->amoveSet(true);
+				sRobot->anglerSet(1200);
+				while (sRobot->getAnalogSensor("Angler Potentiometer")->get_value() < 800) {
+					pros::delay(2);
+				}
+			}
 			sRobot->lmoveSet(true);
-			sRobot->liftSet(1265);
+			sRobot->liftSet(2450);
 			pros::delay(1500);
 			sRobot->lmoveSet(false);
 			sRobot->amoveSet(false);
